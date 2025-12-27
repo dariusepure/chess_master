@@ -9,18 +9,19 @@ public class Game {
     private List<Move> history;
     private int currentPlayerIndex;
     private String currentPlayerColor;
-
-    private List<GameObserver> observers = new ArrayList<GameObserver>();
+    private List<GameObserver> observers = new ArrayList<>();
 
     public Game() {
         this.board = new Board();
-        this.history = new ArrayList<Move>();
+        this.history = new ArrayList<>();
         this.currentPlayerIndex = 0;
+        this.currentPlayerColor = Colors.WHITE.toString();
     }
 
     public Game(int id, Player player1, Player player2) {
         this.id = id;
 
+        // Asigură că player1 este alb și player2 este negru
         if (player1.getColor() == Colors.WHITE) {
             this.player1 = player1;
             this.player2 = player2;
@@ -32,7 +33,7 @@ public class Game {
         }
 
         this.board = new Board();
-        this.history = new ArrayList<Move>();
+        this.history = new ArrayList<>();
         this.currentPlayerIndex = 0;
         this.currentPlayerColor = Colors.WHITE.toString();
     }
@@ -43,14 +44,24 @@ public class Game {
 
     public void setPlayers(List<Player> players) {
         if (players != null && players.size() >= 2) {
-            if (players.get(0).getColor() == Colors.WHITE) {
-                this.player1 = players.get(0);
-                this.player2 = players.get(1);
-            } else {
-                this.player1 = players.get(1);
-                this.player2 = players.get(0);
-                this.player1.setColor(Colors.WHITE);
-                this.player2.setColor(Colors.BLACK);
+            Player p1 = players.get(0);
+            Player p2 = players.get(1);
+
+            if (p1 != null && p2 != null) {
+                // Verifică culoarea și setează corect
+                if (p1.getColor() == Colors.WHITE) {
+                    this.player1 = p1;
+                    this.player2 = p2;
+                } else if (p2.getColor() == Colors.WHITE) {
+                    this.player1 = p2;
+                    this.player2 = p1;
+                } else {
+                    // Dacă niciunul nu e alb, setează primul ca alb
+                    this.player1 = p1;
+                    this.player2 = p2;
+                    this.player1.setColor(Colors.WHITE);
+                    this.player2.setColor(Colors.BLACK);
+                }
             }
         }
     }
@@ -58,9 +69,11 @@ public class Game {
     public void setCurrentPlayerColor(String color) {
         this.currentPlayerColor = color;
         if (color != null && player1 != null && player2 != null) {
-            if (color.equalsIgnoreCase(player1.getColor().toString())) {
+            if (color.equalsIgnoreCase("WHITE") ||
+                    (player1.getColor().toString().equalsIgnoreCase(color))) {
                 this.currentPlayerIndex = 0;
-            } else if (color.equalsIgnoreCase(player2.getColor().toString())) {
+            } else if (color.equalsIgnoreCase("BLACK") ||
+                    (player2.getColor().toString().equalsIgnoreCase(color))) {
                 this.currentPlayerIndex = 1;
             }
         }
@@ -73,18 +86,26 @@ public class Game {
 
         board.clear();
 
-        for (Piece piece : pieces) {
-            board.addPiece(piece, piece.getPosition());
+        if (pieces != null) {
+            for (Piece piece : pieces) {
+                if (piece != null && piece.getPosition() != null) {
+                    board.addPiece(piece, piece.getPosition());
+                }
+            }
         }
 
         updatePawnFirstMoveFlags();
     }
 
     public void setMoves(List<Move> moves) {
-        this.history = moves != null ? moves : new ArrayList<Move>();
+        this.history = moves != null ? new ArrayList<>(moves) : new ArrayList<>();
     }
 
     public void start() {
+        if (board == null) {
+            board = new Board();
+        }
+
         this.board.initialize();
         this.history.clear();
         this.currentPlayerIndex = 0;
@@ -107,13 +128,17 @@ public class Game {
     }
 
     public void switchPlayer() {
-        this.currentPlayerIndex = 1 - this.currentPlayerIndex;
-        this.currentPlayerColor = getCurrentPlayer().getColor().toString();
-        notifyObservers("Player switched to " + getCurrentPlayer().getName());
+        if (player1 != null && player2 != null) {
+            this.currentPlayerIndex = 1 - this.currentPlayerIndex;
+            this.currentPlayerColor = getCurrentPlayer().getColor().toString();
+            notifyObservers("Player switched to " + getCurrentPlayer().getName());
+        }
     }
 
     public boolean checkForCheckMate() {
         Player opponent = getOpponentPlayer();
+        if (opponent == null || board == null) return false;
+
         boolean checkmate = board.isCheckmate(opponent.getColor());
         if (checkmate) {
             notifyObservers("Checkmate!");
@@ -123,6 +148,8 @@ public class Game {
 
     public boolean checkForStalemate() {
         Player opponent = getOpponentPlayer();
+        if (opponent == null || board == null) return false;
+
         boolean stalemate = board.isStalemate(opponent.getColor());
         if (stalemate) {
             notifyObservers("Stalemate!");
@@ -131,6 +158,10 @@ public class Game {
     }
 
     public void addMove(Player player, Position from, Position to) {
+        if (player == null || from == null || to == null || board == null) {
+            return;
+        }
+
         Piece captured = board.getPieceAt(to);
         Move move = new Move(player.getColor(), from, to, captured);
         this.history.add(move);
@@ -142,6 +173,10 @@ public class Game {
     }
 
     private void updatePawnFirstMoveFlags() {
+        if (board == null) {
+            return;
+        }
+
         for (ChessPair<Position, Piece> pair : board.getAllPieces()) {
             Piece piece = pair.getValue();
             if (piece instanceof Pawn) {
@@ -185,11 +220,26 @@ public class Game {
         }
     }
 
+    // METODE GETTER CU VERIFICĂRI NULL
+    public Player getPlayer1() {
+        return player1;
+    }
+
+    public Player getPlayer2() {
+        return player2;
+    }
+
     public Player getCurrentPlayer() {
+        if (player1 == null || player2 == null) {
+            return null;
+        }
         return (currentPlayerIndex == 0) ? player1 : player2;
     }
 
     public Player getOpponentPlayer() {
+        if (player1 == null || player2 == null) {
+            return null;
+        }
         return (currentPlayerIndex == 0) ? player2 : player1;
     }
 
@@ -201,16 +251,8 @@ public class Game {
         return id;
     }
 
-    public Player getPlayer1() {
-        return player1;
-    }
-
-    public Player getPlayer2() {
-        return player2;
-    }
-
     public List<Move> getHistory() {
-        return new ArrayList<Move>(history);
+        return new ArrayList<>(history);
     }
 
     public String getCurrentPlayerColor() {
@@ -219,10 +261,16 @@ public class Game {
 
     public void setPlayer1(Player player) {
         this.player1 = player;
+        if (player != null && player.getColor() == null) {
+            player.setColor(Colors.WHITE);
+        }
     }
 
     public void setPlayer2(Player player) {
         this.player2 = player;
+        if (player != null && player.getColor() == null) {
+            player.setColor(Colors.BLACK);
+        }
     }
 
     public int getCurrentPlayerIndex() {
@@ -230,10 +278,21 @@ public class Game {
     }
 
     public boolean isComputerTurn() {
-        return getCurrentPlayer().getName().equals("Computer");
+        Player current = getCurrentPlayer();
+        return current != null && "Computer".equals(current.getName());
     }
 
     public Player getHumanPlayer() {
-        return (player1.getName().equals("Computer")) ? player2 : player1;
+        if (player1 != null && !"Computer".equals(player1.getName())) {
+            return player1;
+        } else if (player2 != null && !"Computer".equals(player2.getName())) {
+            return player2;
+        }
+        return null;
+    }
+
+    // Metodă pentru a verifica dacă jocul este valid
+    public boolean isValidGame() {
+        return player1 != null && player2 != null && board != null;
     }
 }

@@ -1,8 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
+import java.awt.event.*;
 
 public class MainMenuFrame extends JFrame {
     private Main app;
@@ -12,8 +10,8 @@ public class MainMenuFrame extends JFrame {
         this.app = app;
         this.gui = gui;
 
-        setTitle("Chess - Main Menu");
-        setSize(500, 400);
+        setTitle("Chess Master - Main Menu");
+        setSize(600, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -21,101 +19,115 @@ public class MainMenuFrame extends JFrame {
     }
 
     private void initComponents() {
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setLayout(new BorderLayout(10, 10));
+        getContentPane().setBackground(new Color(240, 240, 240));
 
-        // Header cu informații utilizator
-        User currentUser = app.getCurrentUser();
-        JLabel userLabel = new JLabel("Welcome, " + currentUser.getEmail() +
-                " | Points: " + currentUser.getPoints(), SwingConstants.CENTER);
-        userLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
-        mainPanel.add(userLabel, BorderLayout.NORTH);
+        // Header
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(70, 130, 180));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Panel pentru butoane principale
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+        JLabel welcomeLabel = new JLabel("Welcome to Chess Master", SwingConstants.CENTER);
+        welcomeLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        welcomeLabel.setForeground(Color.WHITE);
 
-        JButton newGameButton = new JButton("♔ New Game");
-        newGameButton.setFont(new Font("Serif", Font.BOLD, 18));
+        JLabel userLabel = new JLabel("User: " + app.getCurrentUser().getEmail(), SwingConstants.RIGHT);
+        userLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        userLabel.setForeground(Color.YELLOW);
+
+        headerPanel.add(welcomeLabel, BorderLayout.CENTER);
+        headerPanel.add(userLabel, BorderLayout.EAST);
+
+        // Main buttons panel
+        JPanel buttonsPanel = new JPanel(new GridLayout(5, 1, 15, 15));
+        buttonsPanel.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
+        buttonsPanel.setBackground(new Color(240, 240, 240));
+
+        JButton newGameButton = createMenuButton("♟️ New Game");
         newGameButton.addActionListener(e -> gui.showNewGameScreen());
 
-        JButton continueButton = new JButton("↻ Continue Game");
-        continueButton.setFont(new Font("Serif", Font.BOLD, 18));
-        continueButton.addActionListener(e -> showContinueGameDialog());
+        // BUTONUL CORECTAT PENTRU CONTINUE GAME
+        JButton continueGameButton = createMenuButton("↻ Continue Game");
+        continueGameButton.addActionListener(e -> {
+            // Verifică dacă există jocuri salvate
+            if (app.getCurrentUser().getActiveGames().isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "No saved games found!\nStart a new game first.",
+                        "No Games",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                gui.showContinueGameScreen();
+                dispose();
+            }
+        });
 
-        JButton statsButton = new JButton("📊 Account Stats");
-        statsButton.setFont(new Font("Serif", Font.BOLD, 18));
-        statsButton.addActionListener(e -> showStatsDialog());
+        JButton statsButton = createMenuButton("📊 Statistics");
+        statsButton.addActionListener(e -> showStatistics());
 
-        JButton logoutButton = new JButton("🚪 Logout");
-        logoutButton.setFont(new Font("Serif", Font.BOLD, 18));
-        logoutButton.addActionListener(e -> logout());
+        JButton logoutButton = createMenuButton("🚪 Logout");
+        logoutButton.addActionListener(e -> {
+            app.logout();
+            gui.showLoginScreen();
+            dispose();
+        });
 
-        buttonPanel.add(newGameButton);
-        buttonPanel.add(continueButton);
-        buttonPanel.add(statsButton);
-        buttonPanel.add(logoutButton);
+        JButton exitButton = createMenuButton("❌ Exit");
+        exitButton.addActionListener(e -> gui.exit());
 
-        mainPanel.add(buttonPanel, BorderLayout.CENTER);
+        buttonsPanel.add(newGameButton);
+        buttonsPanel.add(continueGameButton);
+        buttonsPanel.add(statsButton);
+        buttonsPanel.add(logoutButton);
+        buttonsPanel.add(exitButton);
 
         // Footer
-        JLabel activeGamesLabel = new JLabel("Active games: " +
-                currentUser.getActiveGames().size(), SwingConstants.CENTER);
-        mainPanel.add(activeGamesLabel, BorderLayout.SOUTH);
+        JPanel footerPanel = new JPanel(new BorderLayout());
+        footerPanel.setBackground(new Color(245, 245, 245));
+        footerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        add(mainPanel);
+        JLabel pointsLabel = new JLabel("Total Points: " + app.getCurrentUser().getPoints());
+        pointsLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        JLabel gamesLabel = new JLabel("Active Games: " + app.getCurrentUser().getActiveGames().size());
+        gamesLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+
+        footerPanel.add(pointsLabel, BorderLayout.WEST);
+        footerPanel.add(gamesLabel, BorderLayout.EAST);
+
+        add(headerPanel, BorderLayout.NORTH);
+        add(buttonsPanel, BorderLayout.CENTER);
+        add(footerPanel, BorderLayout.SOUTH);
     }
 
-    private void showContinueGameDialog() {
-        User currentUser = app.getCurrentUser();
-        List<Game> activeGames = currentUser.getActiveGames();
+    private JButton createMenuButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("SansSerif", Font.BOLD, 16));
+        button.setBackground(new Color(70, 130, 180));
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(15, 30, 15, 30));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        if (activeGames.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No active games!");
-            return;
-        }
-
-        String[] gameOptions = new String[activeGames.size()];
-        for (int i = 0; i < activeGames.size(); i++) {
-            Game game = activeGames.get(i);
-            gameOptions[i] = "Game #" + game.getId() + " - " +
-                    game.getPlayer1().getName() + " vs " +
-                    game.getPlayer2().getName() + " (" +
-                    game.getCurrentPlayer().getName() + "'s turn)";
-        }
-
-        String selected = (String) JOptionPane.showInputDialog(this,
-                "Select a game to continue:", "Continue Game",
-                JOptionPane.QUESTION_MESSAGE, null, gameOptions, gameOptions[0]);
-
-        if (selected != null) {
-            for (int i = 0; i < gameOptions.length; i++) {
-                if (gameOptions[i].equals(selected)) {
-                    gui.showGameScreen(activeGames.get(i));
-                    break;
-                }
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                button.setBackground(new Color(100, 149, 237));
             }
-        }
+            public void mouseExited(MouseEvent evt) {
+                button.setBackground(new Color(70, 130, 180));
+            }
+        });
+
+        return button;
     }
 
-    private void showStatsDialog() {
-        User currentUser = app.getCurrentUser();
-        String stats = String.format(
-                "Email: %s\n" +
-                        "Total Points: %d\n" +
-                        "Active Games: %d\n" +
-                        "Total Games Played: %d",
-                currentUser.getEmail(),
-                currentUser.getPoints(),
-                currentUser.getActiveGames().size(),
-                currentUser.getGameIds().size()
-        );
+    private void showStatistics() {
+        User user = app.getCurrentUser();
+        String message = "User Statistics:\n\n" +
+                "Email: " + user.getEmail() + "\n" +
+                "Total Points: " + user.getPoints() + "\n" +
+                "Active Games: " + user.getActiveGames().size() + "\n" +
+                "Games History: " + user.getGameIds().size() + " games played";
 
-        JOptionPane.showMessageDialog(this, stats, "Account Statistics",
-                JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void logout() {
-        app.logout();
-        gui.showLoginScreen();
+        JOptionPane.showMessageDialog(this, message, "Statistics", JOptionPane.INFORMATION_MESSAGE);
     }
 }

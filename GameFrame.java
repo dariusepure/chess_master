@@ -15,7 +15,6 @@ public class GameFrame extends JFrame implements GameObserver {
     private Position selectedPosition = null;
     private List<Position> highlightedMoves = null;
 
-    // Componente UI
     private JLabel currentPlayerLabel;
     private JLabel capturedWhiteLabel;
     private JLabel capturedBlackLabel;
@@ -23,11 +22,10 @@ public class GameFrame extends JFrame implements GameObserver {
     private JLabel gameStatusLabel;
     private JTextArea movesHistoryArea;
 
-    // Culori pentru tabla
-    private final Color LIGHT_SQUARE = new Color(240, 217, 181);
-    private final Color DARK_SQUARE = new Color(181, 136, 99);
-    private final Color SELECTED_COLOR = new Color(144, 238, 144); // Verde deschis
-    private final Color HIGHLIGHT_COLOR = new Color(255, 255, 153); // Galben
+    private final Color LIGHT_SQUARE = Color.WHITE;
+    private final Color DARK_SQUARE = new Color(0, 102, 0); // #006600
+    private final Color SELECTED_COLOR = new Color(144, 238, 144);
+    private final Color HIGHLIGHT_COLOR = new Color(255, 255, 153);
 
     private Timer computerTimer;
 
@@ -46,19 +44,6 @@ public class GameFrame extends JFrame implements GameObserver {
         initComponents();
         updateDisplay();
 
-        // Dacă computerul începe (utilizatorul a ales negre)
-        if (game.isComputerTurn() && !game.getCurrentPlayer().getName().equals("Computer")) {
-            // Corectăm: Dacă utilizatorul e negru, computerul (alb) trebuie să mute primul
-            Player human = game.getHumanPlayer();
-            if (human.getColor() == Colors.BLACK) {
-                // Computerul (alb) ar trebui să fie currentPlayer
-                if (!game.getCurrentPlayer().getName().equals("Computer")) {
-                    game.switchPlayer(); // Schimbă la computer
-                }
-            }
-        }
-
-        // Dacă e rândul computerului, face o mutare după o scurtă întârziere
         if (game.isComputerTurn()) {
             startComputerMove();
         }
@@ -68,7 +53,6 @@ public class GameFrame extends JFrame implements GameObserver {
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(new Color(240, 240, 240));
 
-        // Header
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(70, 130, 180));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -85,18 +69,11 @@ public class GameFrame extends JFrame implements GameObserver {
         headerPanel.add(currentPlayerLabel, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
-        // Main content
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-
-        // Tabla de șah în centru
         mainPanel.add(createBoardPanel(), BorderLayout.CENTER);
-
-        // Panel dreapta (informații și controale)
         mainPanel.add(createRightPanel(), BorderLayout.EAST);
-
         add(mainPanel, BorderLayout.CENTER);
 
-        // Adaugă WindowListener pentru confirmare la închidere
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -118,7 +95,6 @@ public class GameFrame extends JFrame implements GameObserver {
                 squares[row][col].setFocusPainted(false);
                 squares[row][col].setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
-                // Setare culoare pătrat
                 if ((row + col) % 2 == 0) {
                     squares[row][col].setBackground(LIGHT_SQUARE);
                 } else {
@@ -142,23 +118,18 @@ public class GameFrame extends JFrame implements GameObserver {
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         rightPanel.setBackground(new Color(240, 240, 240));
 
-        // Informații jucători
         rightPanel.add(createPlayerInfoPanel());
         rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        // Piese capturate
         rightPanel.add(createCapturedPiecesPanel());
         rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        // Scor
         rightPanel.add(createScorePanel());
         rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        // Istoric mutări
         rightPanel.add(createMoveHistoryPanel());
         rightPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        // Butoane acțiuni
         rightPanel.add(createActionButtonsPanel());
 
         return rightPanel;
@@ -189,18 +160,30 @@ public class GameFrame extends JFrame implements GameObserver {
     }
 
     private JPanel createCapturedPiecesPanel() {
-        JPanel panel = new JPanel(new GridLayout(2, 1, 5, 5));
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Captured Pieces"));
         panel.setBackground(Color.WHITE);
 
-        capturedWhiteLabel = new JLabel(" White: ");
-        capturedBlackLabel = new JLabel(" Black: ");
+        JPanel whitePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
+        whitePanel.setBackground(Color.WHITE);
+        JLabel whiteTitle = new JLabel("White: ");
+        whiteTitle.setFont(new Font("SansSerif", Font.BOLD, 12));
+        capturedWhiteLabel = new JLabel("");
+        capturedWhiteLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        whitePanel.add(whiteTitle);
+        whitePanel.add(capturedWhiteLabel);
 
-        capturedWhiteLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        capturedBlackLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        JPanel blackPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
+        blackPanel.setBackground(Color.WHITE);
+        JLabel blackTitle = new JLabel("Black: ");
+        blackTitle.setFont(new Font("SansSerif", Font.BOLD, 12));
+        capturedBlackLabel = new JLabel("");
+        capturedBlackLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        blackPanel.add(blackTitle);
+        blackPanel.add(capturedBlackLabel);
 
-        panel.add(capturedWhiteLabel);
-        panel.add(capturedBlackLabel);
+        panel.add(whitePanel, BorderLayout.NORTH);
+        panel.add(blackPanel, BorderLayout.SOUTH);
 
         return panel;
     }
@@ -283,7 +266,6 @@ public class GameFrame extends JFrame implements GameObserver {
     }
 
     private void handleSquareClick(int row, int col) {
-        // Dacă e rândul computerului, nu permite click-uri
         if (game.isComputerTurn()) {
             JOptionPane.showMessageDialog(this,
                     "Computer's turn! Please wait...",
@@ -292,14 +274,12 @@ public class GameFrame extends JFrame implements GameObserver {
         }
 
         char x = (char) ('A' + col);
-        int y = 8 - row; // Conversie coordonate
+        int y = 8 - row;
         Position position = new Position(x, y);
 
-        // Obține jucătorul curent (uman)
         Player currentPlayer = game.getCurrentPlayer();
 
         if (selectedPosition == null) {
-            // Selectare piesă
             Piece piece = game.getBoard().getPieceAt(position);
             if (piece != null && piece.getColor() == currentPlayer.getColor()) {
                 selectedPosition = position;
@@ -311,23 +291,17 @@ public class GameFrame extends JFrame implements GameObserver {
                 gameStatusLabel.setText("Not your piece! Select your own piece.");
             }
         } else {
-            // Mutare piesă
             if (highlightedMoves != null && highlightedMoves.contains(position)) {
                 try {
-                    // Efectuează mutarea
                     currentPlayer.makeMove(selectedPosition, position, game.getBoard());
                     game.addMove(currentPlayer, selectedPosition, position);
 
-                    // Adaugă la istoric
                     addMoveToHistory(currentPlayer, selectedPosition, position);
 
-                    // Verifică starea jocului
                     checkGameState();
 
-                    // Schimbă jucătorul
                     game.switchPlayer();
 
-                    // Dacă e acum rândul computerului
                     if (game.isComputerTurn()) {
                         gameStatusLabel.setText("Computer thinking...");
                         startComputerMove();
@@ -344,7 +318,6 @@ public class GameFrame extends JFrame implements GameObserver {
                 gameStatusLabel.setText("Invalid move target!");
             }
 
-            // Resetare selecție
             selectedPosition = null;
             highlightedMoves = null;
             clearHighlights();
@@ -352,7 +325,6 @@ public class GameFrame extends JFrame implements GameObserver {
     }
 
     private void startComputerMove() {
-        // Folosește Timer pentru a simula "gândirea" computerului
         if (computerTimer != null && computerTimer.isRunning()) {
             computerTimer.stop();
         }
@@ -372,13 +344,12 @@ public class GameFrame extends JFrame implements GameObserver {
     private void makeComputerMove() {
         Player computer = game.getCurrentPlayer();
         if (!computer.getName().equals("Computer")) {
-            return; // Nu e rândul computerului
+            return;
         }
 
         Board board = game.getBoard();
         List<Position> computerPieces = new ArrayList<>();
 
-        // Găsește toate piesele computerului
         for (char x = 'A'; x <= 'H'; x++) {
             for (int y = 1; y <= 8; y++) {
                 Position pos = new Position(x, y);
@@ -398,7 +369,6 @@ public class GameFrame extends JFrame implements GameObserver {
         boolean moveMade = false;
         int maxAttempts = 100;
 
-        // Încearcă să găsească o mutare validă
         for (int attempt = 0; attempt < maxAttempts && !moveMade; attempt++) {
             Position from = computerPieces.get(rand.nextInt(computerPieces.size()));
             Piece piece = board.getPieceAt(from);
@@ -414,16 +384,13 @@ public class GameFrame extends JFrame implements GameObserver {
                 computer.makeMove(from, to, board);
                 game.addMove(computer, from, to);
 
-                // Adaugă la istoric
                 addMoveToHistory(computer, from, to);
 
                 moveMade = true;
                 gameStatusLabel.setText("Computer moved: " + from + "-" + to);
 
-                // Verifică starea jocului
                 checkGameState();
 
-                // Schimbă înapoi la jucătorul uman
                 game.switchPlayer();
 
                 updateDisplay();
@@ -440,7 +407,6 @@ public class GameFrame extends JFrame implements GameObserver {
     }
 
     private void checkGameState() {
-        // Verifică șah-mat
         if (game.checkForCheckMate()) {
             Player winner = game.getCurrentPlayer();
             boolean humanWins = !winner.getName().equals("Computer");
@@ -461,20 +427,18 @@ public class GameFrame extends JFrame implements GameObserver {
             return;
         }
 
-        // Verifică pat
         if (game.checkForStalemate()) {
             JOptionPane.showMessageDialog(this,
                     "Stalemate! Draw game.",
                     "Draw", JOptionPane.INFORMATION_MESSAGE);
 
             Player human = game.getHumanPlayer();
-            int points = human.getPoints(); // Doar punctele din capturi
-            app.endGame(game, false); // Fără bonus/penalizare pentru pat
+            int points = human.getPoints();
+            app.endGame(game, false);
             gui.showGameOverScreen(game, "Stalemate - Draw", points);
             return;
         }
 
-        // Verifică șah
         Board board = game.getBoard();
         Player currentPlayer = game.getCurrentPlayer();
         if (board.isInCheck(currentPlayer.getColor())) {
@@ -543,7 +507,6 @@ public class GameFrame extends JFrame implements GameObserver {
     }
 
     private void updateDisplay() {
-        // Actualizează piesele pe tablă
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 char x = (char) ('A' + col);
@@ -562,23 +525,32 @@ public class GameFrame extends JFrame implements GameObserver {
             }
         }
 
-        // Actualizează informații
         Player currentPlayer = game.getCurrentPlayer();
         currentPlayerLabel.setText("Turn: " + currentPlayer.getName());
 
-        // Actualizează piese capturate
         updateCapturedPieces();
 
-        // Actualizează scor
         scoreLabel.setText(game.getPlayer1().getPoints() + " - " + game.getPlayer2().getPoints());
 
-        // Verifică șah
         Board board = game.getBoard();
         if (board.isInCheck(currentPlayer.getColor())) {
             gameStatusLabel.setText("CHECK! " + currentPlayer.getName() + "'s king is under attack!");
         } else {
             gameStatusLabel.setText(currentPlayer.getName() + "'s turn");
         }
+    }
+
+    private void updateCapturedPieces() {
+        Player whitePlayer = (game.getPlayer1().getColor() == Colors.WHITE) ?
+                game.getPlayer1() : game.getPlayer2();
+        Player blackPlayer = (whitePlayer == game.getPlayer1()) ?
+                game.getPlayer2() : game.getPlayer1();
+
+        String whiteCapturedStr = blackPlayer.getCapturedPiecesString();
+        String blackCapturedStr = whitePlayer.getCapturedPiecesString();
+
+        capturedWhiteLabel.setText("White: " + whiteCapturedStr);
+        capturedBlackLabel.setText("Black: " + blackCapturedStr);
     }
 
     private String getPieceSymbol(Piece piece) {
@@ -596,28 +568,6 @@ public class GameFrame extends JFrame implements GameObserver {
         }
     }
 
-    private void updateCapturedPieces() {
-        StringBuilder whiteCaptured = new StringBuilder(" White: ");
-        StringBuilder blackCaptured = new StringBuilder(" Black: ");
-
-        // Verifică piesele capturate din istoric
-        for (Move move : game.getHistory()) {
-            if (move.getCapturedPiece() != null) {
-                Piece captured = move.getCapturedPiece();
-                String pieceSymbol = getPieceSymbol(captured);
-
-                if (captured.getColor() == Colors.BLACK) {
-                    whiteCaptured.append(pieceSymbol).append(" ");
-                } else {
-                    blackCaptured.append(pieceSymbol).append(" ");
-                }
-            }
-        }
-
-        capturedWhiteLabel.setText(whiteCaptured.toString());
-        capturedBlackLabel.setText(blackCaptured.toString());
-    }
-
     private void showHint() {
         if (game.isComputerTurn()) {
             JOptionPane.showMessageDialog(this,
@@ -630,7 +580,6 @@ public class GameFrame extends JFrame implements GameObserver {
         Board board = game.getBoard();
         List<Position> humanPieces = new ArrayList<>();
 
-        // Găsește toate piesele umanului
         for (char x = 'A'; x <= 'H'; x++) {
             for (int y = 1; y <= 8; y++) {
                 Position pos = new Position(x, y);
@@ -707,7 +656,6 @@ public class GameFrame extends JFrame implements GameObserver {
         }
     }
 
-    // Implementare GameObserver
     @Override
     public void onMoveMade(Move move) {
         updateDisplay();

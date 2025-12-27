@@ -43,11 +43,11 @@ public class MainMenuFrame extends JFrame {
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
         buttonsPanel.setBackground(new Color(240, 240, 240));
 
-        JButton newGameButton = createMenuButton("♟️ New Game");
+        JButton newGameButton = createMenuButton("New Game");
         newGameButton.addActionListener(e -> gui.showNewGameScreen());
 
         // BUTONUL CORECTAT PENTRU CONTINUE GAME
-        JButton continueGameButton = createMenuButton("↻ Continue Game");
+        JButton continueGameButton = createMenuButton("Continue Game");
         continueGameButton.addActionListener(e -> {
             // Verifică dacă există jocuri salvate
             if (app.getCurrentUser().getActiveGames().isEmpty()) {
@@ -61,17 +61,17 @@ public class MainMenuFrame extends JFrame {
             }
         });
 
-        JButton statsButton = createMenuButton("📊 Statistics");
+        JButton statsButton = createMenuButton("Statistics");
         statsButton.addActionListener(e -> showStatistics());
 
-        JButton logoutButton = createMenuButton("🚪 Logout");
+        JButton logoutButton = createMenuButton("Logout");
         logoutButton.addActionListener(e -> {
             app.logout();
             gui.showLoginScreen();
             dispose();
         });
 
-        JButton exitButton = createMenuButton("❌ Exit");
+        JButton exitButton = createMenuButton("Exit");
         exitButton.addActionListener(e -> gui.exit());
 
         buttonsPanel.add(newGameButton);

@@ -25,7 +25,8 @@ public class GameFrame extends JFrame implements GameObserver {
     private final Color LIGHT_SQUARE = Color.WHITE;
     private final Color DARK_SQUARE = new Color(0, 102, 0); // #006600
     private final Color SELECTED_COLOR = new Color(144, 238, 144);
-    private final Color HIGHLIGHT_COLOR = new Color(255, 255, 153);
+    private final Color HIGHLIGHT_COLOR = new Color(255, 255, 153); // Galben pentru mutări normale
+    private final Color CAPTURE_COLOR = new Color(255, 100, 100);   // Roșu pentru capturi
 
     private Timer computerTimer;
 
@@ -224,19 +225,17 @@ public class GameFrame extends JFrame implements GameObserver {
         panel.setBorder(BorderFactory.createTitledBorder("Actions"));
         panel.setBackground(Color.WHITE);
 
-        JButton hintButton = createActionButton("💡 Hint");
-        hintButton.addActionListener(e -> showHint());
 
-        JButton resignButton = createActionButton("🏳️ Resign");
+
+        JButton resignButton = createActionButton("Give Up");
         resignButton.addActionListener(e -> resignGame());
 
-        JButton saveButton = createActionButton("💾 Save & Exit");
+        JButton saveButton = createActionButton("Save & Exit");
         saveButton.addActionListener(e -> saveAndExit());
 
-        JButton menuButton = createActionButton("🏠 Main Menu");
+        JButton menuButton = createActionButton("Main Menu");
         menuButton.addActionListener(e -> returnToMenu());
 
-        panel.add(hintButton);
         panel.add(resignButton);
         panel.add(saveButton);
         panel.add(menuButton);
@@ -473,6 +472,9 @@ public class GameFrame extends JFrame implements GameObserver {
     }
 
     private void highlightSquares() {
+        Board board = game.getBoard();
+        Piece selectedPiece = (selectedPosition != null) ? board.getPieceAt(selectedPosition) : null;
+
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 char x = (char) ('A' + col);
@@ -482,13 +484,27 @@ public class GameFrame extends JFrame implements GameObserver {
                 if (selectedPosition != null && pos.equals(selectedPosition)) {
                     squares[row][col].setBackground(SELECTED_COLOR);
                 } else if (highlightedMoves != null && highlightedMoves.contains(pos)) {
-                    squares[row][col].setBackground(HIGHLIGHT_COLOR);
+                    // VERIFICĂ DACĂ E CAPTURĂ SAU MUTARE NORMALĂ
+                    Piece targetPiece = board.getPieceAt(pos);
+
+                    if (targetPiece != null && selectedPiece != null &&
+                            targetPiece.getColor() != selectedPiece.getColor()) {
+                        // CAPTURĂ - ROSU
+                        squares[row][col].setBackground(CAPTURE_COLOR);
+                        squares[row][col].setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+                    } else {
+                        // MUTARE NORMALĂ - GALBEN
+                        squares[row][col].setBackground(HIGHLIGHT_COLOR);
+                        squares[row][col].setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+                    }
                 } else {
+                    // CULOAREA NORMALĂ A PĂTRATULUI
                     if ((row + col) % 2 == 0) {
                         squares[row][col].setBackground(LIGHT_SQUARE);
                     } else {
                         squares[row][col].setBackground(DARK_SQUARE);
                     }
+                    squares[row][col].setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
                 }
             }
         }
@@ -502,6 +518,7 @@ public class GameFrame extends JFrame implements GameObserver {
                 } else {
                     squares[row][col].setBackground(DARK_SQUARE);
                 }
+                squares[row][col].setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
             }
         }
     }
@@ -568,46 +585,6 @@ public class GameFrame extends JFrame implements GameObserver {
         }
     }
 
-    private void showHint() {
-        if (game.isComputerTurn()) {
-            JOptionPane.showMessageDialog(this,
-                    "Wait for computer to move first!",
-                    "Hint", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-
-        Player human = game.getCurrentPlayer();
-        Board board = game.getBoard();
-        List<Position> humanPieces = new ArrayList<>();
-
-        for (char x = 'A'; x <= 'H'; x++) {
-            for (int y = 1; y <= 8; y++) {
-                Position pos = new Position(x, y);
-                Piece piece = board.getPieceAt(pos);
-                if (piece != null && piece.getColor() == human.getColor()) {
-                    humanPieces.add(pos);
-                }
-            }
-        }
-
-        if (!humanPieces.isEmpty()) {
-            Random rand = new Random();
-            Position randomPiece = humanPieces.get(rand.nextInt(humanPieces.size()));
-            List<Position> validMoves = board.getValidMovesForPiece(randomPiece);
-
-            if (!validMoves.isEmpty()) {
-                Position suggestedMove = validMoves.get(rand.nextInt(validMoves.size()));
-                JOptionPane.showMessageDialog(this,
-                        "Hint: Try moving " + getPieceName(board.getPieceAt(randomPiece).getType()) +
-                                " from " + randomPiece + " to " + suggestedMove,
-                        "Hint", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "No valid moves for selected piece. Try another piece.",
-                        "Hint", JOptionPane.INFORMATION_MESSAGE);
-            }
-        }
-    }
 
     private void resignGame() {
         int confirm = JOptionPane.showConfirmDialog(this,

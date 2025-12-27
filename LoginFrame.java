@@ -63,10 +63,7 @@ public class LoginFrame extends JFrame {
 
         mainPanel.add(formPanel, BorderLayout.CENTER);
 
-        // Footer
-        JLabel footerLabel = new JLabel("POO 2025 - Chess Project", SwingConstants.CENTER);
-        footerLabel.setFont(new Font("SansSerif", Font.ITALIC, 12));
-        mainPanel.add(footerLabel, BorderLayout.SOUTH);
+
 
         add(mainPanel);
     }

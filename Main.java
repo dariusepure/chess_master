@@ -56,12 +56,19 @@ public class Main {
             if (Files.exists(Paths.get(GAMES_FILE))) {
                 Map<Long, Game> gamesMap = JsonReaderUtil.readGamesAsMap(Paths.get(GAMES_FILE));
                 allGames.clear();
+
                 for (Map.Entry<Long, Game> entry : gamesMap.entrySet()) {
                     int gameId = entry.getKey().intValue();
                     Game game = entry.getValue();
-                    allGames.put(gameId, game);
-                    if (gameId >= nextGameId) {
-                        nextGameId = gameId + 1;
+
+                    // VERIFICARE CRITICĂ: Asigură-te că jocul are player1 și player2 valizi
+                    if (game != null && game.getPlayer1() != null && game.getPlayer2() != null) {
+                        allGames.put(gameId, game);
+                        if (gameId >= nextGameId) {
+                            nextGameId = gameId + 1;
+                        }
+                    } else {
+                        System.out.println("Skipping invalid game with null players: ID=" + gameId);
                     }
                 }
 
@@ -83,51 +90,28 @@ public class Main {
 
     public void saveData() {
         try {
-            // Salvează utilizatori manual (fără JsonWriterUtil)
+            // Salvează doar jocurile VALIDE
+            saveValidGames();
             saveUsersManually();
-
-            // Salvează jocuri manual
-            saveGamesManually();
 
         } catch (Exception e) {
             System.out.println("Save error: " + e.getMessage());
         }
     }
 
-    private void saveUsersManually() {
-        try {
-            org.json.simple.JSONArray usersArray = new org.json.simple.JSONArray();
-
-            for (User user : users) {
-                org.json.simple.JSONObject userObj = new org.json.simple.JSONObject();
-                userObj.put("email", user.getEmail());
-                userObj.put("password", user.getPassword());
-                userObj.put("points", user.getPoints());
-
-                org.json.simple.JSONArray gamesArray = new org.json.simple.JSONArray();
-                for (Integer gameId : user.getGameIds()) {
-                    gamesArray.add(gameId);
-                }
-                userObj.put("games", gamesArray);
-
-                usersArray.add(userObj);
-            }
-
-            try (java.io.FileWriter file = new java.io.FileWriter(ACCOUNTS_FILE)) {
-                file.write(usersArray.toJSONString());
-                file.flush();
-            }
-        } catch (Exception e) {
-            System.out.println("Error saving users: " + e.getMessage());
-        }
-    }
-
-    private void saveGamesManually() {
+    private void saveValidGames() {
         try {
             org.json.simple.JSONArray gamesArray = new org.json.simple.JSONArray();
 
             for (Map.Entry<Integer, Game> entry : allGames.entrySet()) {
                 Game game = entry.getValue();
+
+                // VERIFICARE: Sari peste jocurile cu player1 sau player2 null
+                if (game == null || game.getPlayer1() == null || game.getPlayer2() == null) {
+                    System.out.println("Skipping invalid game during save: " +
+                            (game != null ? "ID=" + game.getId() : "NULL"));
+                    continue;
+                }
 
                 org.json.simple.JSONObject gameObj = new org.json.simple.JSONObject();
                 gameObj.put("id", game.getId());
@@ -193,8 +177,45 @@ public class Main {
         }
     }
 
+    private void saveUsersManually() {
+        try {
+            org.json.simple.JSONArray usersArray = new org.json.simple.JSONArray();
+
+            for (User user : users) {
+                org.json.simple.JSONObject userObj = new org.json.simple.JSONObject();
+                userObj.put("email", user.getEmail());
+                userObj.put("password", user.getPassword());
+                userObj.put("points", user.getPoints());
+
+                org.json.simple.JSONArray gamesArray = new org.json.simple.JSONArray();
+                for (Integer gameId : user.getGameIds()) {
+                    // Verifică dacă jocul există înainte de a-l adăuga
+                    if (allGames.containsKey(gameId)) {
+                        gamesArray.add(gameId);
+                    }
+                }
+                userObj.put("games", gamesArray);
+
+                usersArray.add(userObj);
+            }
+
+            try (java.io.FileWriter file = new java.io.FileWriter(ACCOUNTS_FILE)) {
+                file.write(usersArray.toJSONString());
+                file.flush();
+            }
+        } catch (Exception e) {
+            System.out.println("Error saving users: " + e.getMessage());
+        }
+    }
+
     public Game createNewGame(String playerName, Colors playerColor) {
         Colors computerColor = (playerColor == Colors.WHITE) ? Colors.BLACK : Colors.WHITE;
+
+        // VALIDARE: asigură-te că playerName nu e null
+        if (playerName == null || playerName.trim().isEmpty()) {
+            playerName = "Player1";
+        }
+
         Player humanPlayer = new Player(playerName, playerColor);
         Player computerPlayer = new Player("Computer", computerColor);
 
@@ -202,7 +223,11 @@ public class Main {
         game.start();
 
         allGames.put(nextGameId, game);
-        currentUser.addGame(game);
+
+        if (currentUser != null) {
+            currentUser.addGame(game);
+        }
+
         nextGameId++;
 
         saveData();
@@ -210,43 +235,76 @@ public class Main {
     }
 
     public void saveGame(Game game) {
-        saveData();
+        // Verifică dacă jocul este valid înainte de salvare
+        if (game != null && game.getPlayer1() != null && game.getPlayer2() != null) {
+            allGames.put(game.getId(), game);
+            saveData();
+        } else {
+            System.out.println("Cannot save invalid game: player1 or player2 is null");
+        }
     }
 
     public void resignGame(Game game) {
+        if (game == null || game.getPlayer1() == null) {
+            System.out.println("Cannot resign null game or game with null player1");
+            return;
+        }
+
         Player humanPlayer = getHumanPlayer(game);
         int capturedPoints = humanPlayer.getPoints();
         int penalty = -150;
         int totalPoints = capturedPoints + penalty;
 
-        currentUser.updatePoints(totalPoints);
-        currentUser.removeGame(game);
+        if (currentUser != null) {
+            currentUser.updatePoints(totalPoints);
+            currentUser.removeGame(game);
+        }
+
         allGames.remove(game.getId());
 
         saveData();
     }
 
     public void endGame(Game game, boolean humanWins) {
+        if (game == null || game.getPlayer1() == null) {
+            System.out.println("Cannot end null game or game with null player1");
+            return;
+        }
+
         Player humanPlayer = getHumanPlayer(game);
 
         if (humanWins) {
             int capturedPoints = humanPlayer.getPoints();
             int bonus = 300;
             int totalPoints = capturedPoints + bonus;
-            currentUser.updatePoints(totalPoints);
+
+            if (currentUser != null) {
+                currentUser.updatePoints(totalPoints);
+            }
         } else {
             int capturedPoints = humanPlayer.getPoints();
             int penalty = -300;
             int totalPoints = capturedPoints + penalty;
-            currentUser.updatePoints(totalPoints);
+
+            if (currentUser != null) {
+                currentUser.updatePoints(totalPoints);
+            }
         }
 
-        currentUser.removeGame(game);
+        if (currentUser != null) {
+            currentUser.removeGame(game);
+        }
+
         allGames.remove(game.getId());
         saveData();
     }
 
     private Player getHumanPlayer(Game game) {
+        if (game.getPlayer1() == null || game.getPlayer2() == null) {
+            // Returnează un player default pentru a evita NullPointerException
+            return new Player("DefaultPlayer", Colors.WHITE);
+        }
+
         return (game.getPlayer1().getName().equals("Computer")) ?
                 game.getPlayer2() : game.getPlayer1();
     }

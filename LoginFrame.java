@@ -26,7 +26,7 @@ public class LoginFrame extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Logo/Titlu
-        JLabel titleLabel = new JLabel("♔ Chess Master ♚", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Chess Master", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Serif", Font.BOLD, 24));
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 

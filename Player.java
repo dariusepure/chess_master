@@ -22,20 +22,16 @@ public class Player {
         if (board == null) {
             throw new InvalidMoveException("Board is null");
         }
-
         if (from == null || to == null) {
             throw new InvalidMoveException("Invalid positions");
         }
-
         Piece piece = board.getPieceAt(from);
         if (piece == null) {
             throw new InvalidMoveException("No piece at " + from);
         }
-
         if (piece.getColor() != this.color) {
             throw new InvalidMoveException("Piece at " + from + " does not belong to you");
         }
-
         board.movePiece(from, to, this);
     }
 
@@ -43,13 +39,10 @@ public class Player {
         if (originalPiece == null) {
             return;
         }
-
         if (originalPiece.getColor() == this.color) {
             return;
         }
-
         Piece capturedCopy = createPieceCopy(originalPiece);
-
         capturedPieces.add(capturedCopy);
         updatePoints();
     }
@@ -57,15 +50,11 @@ public class Player {
     private Piece createPieceCopy(Piece original) {
         char type = original.getType();
         Colors color = original.getColor();
-
         Position capturePosition = new Position('X', 0);
-
         Piece copy = PieceFactory.createPiece(type, color, capturePosition);
-
         if (copy instanceof Pawn) {
             ((Pawn) copy).setFirstMove(false);
         }
-
         return copy;
     }
 
@@ -99,7 +88,6 @@ public class Player {
     public void loadCapturedPiecesFromJson(List<String> capturedData) {
         capturedPieces.clear();
         points = 0;
-
         if (capturedData != null) {
             for (String pieceStr : capturedData) {
                 try {
@@ -107,17 +95,14 @@ public class Player {
                     if (parts.length == 2) {
                         char type = parts[0].charAt(0);
                         Colors color = Colors.valueOf(parts[1].toUpperCase());
-
                         Position neutralPos = new Position('X', 0);
                         Piece piece = PieceFactory.createPiece(type, color, neutralPos);
-
                         if (piece != null) {
                             capturedPieces.add(piece);
                             points += getPieceValue(type);
                         }
                     }
                 } catch (Exception e) {
-                    // Ignoră erorile la încărcare
                 }
             }
         }
@@ -127,7 +112,6 @@ public class Player {
         if (capturedPieces.isEmpty()) {
             return "None";
         }
-
         StringBuilder sb = new StringBuilder();
         for (Piece piece : capturedPieces) {
             sb.append(getPieceSymbol(piece)).append(" ");
@@ -137,9 +121,7 @@ public class Player {
 
     private String getPieceSymbol(Piece piece) {
         if (piece == null) return "?";
-
         boolean isWhitePiece = piece.getColor() == Colors.WHITE;
-
         switch (piece.getType()) {
             case 'Q': return isWhitePiece ? "♕" : "♛";
             case 'R': return isWhitePiece ? "♖" : "♜";
@@ -155,7 +137,6 @@ public class Player {
     public int getPoints() { return points; }
     public List<Piece> getCapturedPieces() { return new ArrayList<>(capturedPieces); }
     public int getCapturedCount() { return capturedPieces.size(); }
-
     public void setName(String name) { this.name = name; }
     public void setColor(Colors color) { this.color = color; }
     public void setPoints(int points) { this.points = points; }

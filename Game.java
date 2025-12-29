@@ -20,8 +20,6 @@ public class Game {
 
     public Game(int id, Player player1, Player player2) {
         this.id = id;
-
-        // Asigură că player1 este alb și player2 este negru
         if (player1.getColor() == Colors.WHITE) {
             this.player1 = player1;
             this.player2 = player2;
@@ -48,7 +46,6 @@ public class Game {
             Player p2 = players.get(1);
 
             if (p1 != null && p2 != null) {
-                // Verifică culoarea și setează corect
                 if (p1.getColor() == Colors.WHITE) {
                     this.player1 = p1;
                     this.player2 = p2;
@@ -56,7 +53,6 @@ public class Game {
                     this.player1 = p2;
                     this.player2 = p1;
                 } else {
-                    // Dacă niciunul nu e alb, setează primul ca alb
                     this.player1 = p1;
                     this.player2 = p2;
                     this.player1.setColor(Colors.WHITE);
@@ -83,9 +79,7 @@ public class Game {
         if (board == null) {
             board = new Board();
         }
-
         board.clear();
-
         if (pieces != null) {
             for (Piece piece : pieces) {
                 if (piece != null && piece.getPosition() != null) {
@@ -93,7 +87,6 @@ public class Game {
                 }
             }
         }
-
         updatePawnFirstMoveFlags();
     }
 
@@ -105,12 +98,10 @@ public class Game {
         if (board == null) {
             board = new Board();
         }
-
         this.board.initialize();
         this.history.clear();
         this.currentPlayerIndex = 0;
         this.currentPlayerColor = Colors.WHITE.toString();
-
         if (player1 != null) {
             player1.clearCapturedPieces();
             player1.setPoints(0);
@@ -119,7 +110,6 @@ public class Game {
             player2.clearCapturedPieces();
             player2.setPoints(0);
         }
-
         notifyObservers("Game started");
     }
 
@@ -198,10 +188,6 @@ public class Game {
         }
     }
 
-    public void removeObserver(GameObserver observer) {
-        observers.remove(observer);
-    }
-
     private void notifyMoveMade(Move move) {
         for (GameObserver observer : observers) {
             observer.onMoveMade(move);
@@ -220,7 +206,6 @@ public class Game {
         }
     }
 
-    // METODE GETTER CU VERIFICĂRI NULL
     public Player getPlayer1() {
         return player1;
     }
@@ -291,7 +276,6 @@ public class Game {
         return null;
     }
 
-    // Metodă pentru a verifica dacă jocul este valid
     public boolean isValidGame() {
         return player1 != null && player2 != null && board != null;
     }

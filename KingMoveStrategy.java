@@ -33,7 +33,7 @@ public class KingMoveStrategy implements MoveStrategy {
 
     @Override
     public boolean canCheckKing(Board board, Position currentPos, Position kingPos) {
-        return false; // Regele nu poate da șah altui rege direct
+        return false;
     }
 
     private Colors getPieceColor(Board board, Position pos) {

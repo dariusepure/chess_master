@@ -7,9 +7,7 @@ public class RookMoveStrategy implements MoveStrategy {
         List<Position> moves = new ArrayList<Position>();
         int x = currentPos.getX() - 'A';
         int y = currentPos.getY() - 1;
-
         int[][] directions = {{0,1}, {0,-1}, {1,0}, {-1,0}};
-
         for (int i = 0; i < directions.length; i++) {
             for (int step = 1; step <= 7; step++) {
                 int newX = x + directions[i][0] * step;
@@ -30,7 +28,6 @@ public class RookMoveStrategy implements MoveStrategy {
                 }
             }
         }
-
         return moves;
     }
 

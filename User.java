@@ -39,7 +39,6 @@ public class User {
             if (g.getId() == game.getId())
                 return;
         }
-
         games.add(game);
         if (!gameIds.contains(game.getId())) {
             gameIds.add(game.getId());
@@ -56,7 +55,6 @@ public class User {
                 break;
             }
         }
-
         if (toRemove != null) {
             games.remove(toRemove);
             gameIds.remove(Integer.valueOf(game.getId()));

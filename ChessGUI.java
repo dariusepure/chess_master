@@ -32,7 +32,6 @@ public class ChessGUI {
         currentFrame.setVisible(true);
     }
 
-    // METODĂ NOUĂ PENTRU CONTINUE GAME
     public void showContinueGameScreen() {
         if (currentFrame != null) {
             currentFrame.dispose();

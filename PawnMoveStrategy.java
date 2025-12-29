@@ -7,15 +7,11 @@ public class PawnMoveStrategy implements MoveStrategy {
         List<Position> moves = new ArrayList<Position>();
         int x = currentPos.getX() - 'A';
         int y = currentPos.getY() - 1;
-
         Piece pawn = board.getPieceAt(currentPos);
         if (!(pawn instanceof Pawn)) return moves;
-
         Colors color = ((Pawn) pawn).getColor();
         boolean isFirstMove = ((Pawn) pawn).isFirstMove();
         int direction = (color == Colors.WHITE) ? 1 : -1;
-
-        // Mișcare înainte
         int forwardY = y + direction;
         if (forwardY >= 0 && forwardY < 8) {
             Position forwardPos = new Position((char)(x + 'A'), forwardY + 1);
@@ -34,11 +30,8 @@ public class PawnMoveStrategy implements MoveStrategy {
                 }
             }
         }
-
-        // Captură diagonală
         int[] captureX = {x - 1, x + 1};
         int captureY = y + direction;
-
         if (captureY >= 0 && captureY < 8) {
             for (int i = 0; i < captureX.length; i++) {
                 int capX = captureX[i];
@@ -60,15 +53,12 @@ public class PawnMoveStrategy implements MoveStrategy {
     public boolean canCheckKing(Board board, Position currentPos, Position kingPos) {
         Piece pawn = board.getPieceAt(currentPos);
         if (!(pawn instanceof Pawn)) return false;
-
         Colors color = ((Pawn) pawn).getColor();
         int x = currentPos.getX() - 'A';
         int y = currentPos.getY() - 1;
         int direction = (color == Colors.WHITE) ? 1 : -1;
-
         int[] captureX = {x - 1, x + 1};
         int captureY = y + direction;
-
         if (captureY >= 0 && captureY < 8) {
             for (int i = 0; i < captureX.length; i++) {
                 int capX = captureX[i];

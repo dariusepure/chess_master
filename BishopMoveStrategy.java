@@ -7,19 +7,14 @@ public class BishopMoveStrategy implements MoveStrategy {
         List<Position> moves = new ArrayList<Position>();
         int x = currentPos.getX() - 'A';
         int y = currentPos.getY() - 1;
-
         int[][] directions = {{-1,-1}, {-1,1}, {1,-1}, {1,1}};
-
         for (int i = 0; i < directions.length; i++) {
             for (int step = 1; step <= 7; step++) {
                 int newX = x + directions[i][0] * step;
                 int newY = y + directions[i][1] * step;
-
                 if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-
                 Position newPos = new Position((char)(newX + 'A'), newY + 1);
                 Piece target = board.getPieceAt(newPos);
-
                 if (target == null) {
                     moves.add(newPos);
                 } else {
@@ -30,7 +25,6 @@ public class BishopMoveStrategy implements MoveStrategy {
                 }
             }
         }
-
         return moves;
     }
 

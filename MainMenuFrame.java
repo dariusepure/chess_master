@@ -107,16 +107,6 @@ public class MainMenuFrame extends JFrame {
         button.setFocusPainted(false);
         button.setBorder(BorderFactory.createEmptyBorder(15, 30, 15, 30));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        button.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent evt) {
-                button.setBackground(new Color(100, 149, 237));
-            }
-            public void mouseExited(MouseEvent evt) {
-                button.setBackground(new Color(76, 175, 80));
-            }
-        });
-
         return button;
     }
 
@@ -127,7 +117,6 @@ public class MainMenuFrame extends JFrame {
                 "Total Points: " + user.getPoints() + "\n" +
                 "Active Games: " + user.getActiveGames().size() + "\n" +
                 "Games History: " + user.getGameIds().size() + " games played";
-
         JOptionPane.showMessageDialog(this, message, "Statistics", JOptionPane.INFORMATION_MESSAGE);
     }
 }

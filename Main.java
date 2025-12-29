@@ -24,16 +24,8 @@ public class Main {
         return instance;
     }
 
-    public ChessGUI getGUI() {
-        return gui;
-    }
-
     public User getCurrentUser() {
         return currentUser;
-    }
-
-    public List<User> getUsers() {
-        return new ArrayList<>(users);
     }
 
     public Map<Integer, Game> getAllGames() {
@@ -61,7 +53,7 @@ public class Main {
                     int gameId = entry.getKey().intValue();
                     Game game = entry.getValue();
 
-                    // VERIFICARE CRITICĂ: Asigură-te că jocul are player1 și player2 valizi
+
                     if (game != null && game.getPlayer1() != null && game.getPlayer2() != null) {
                         allGames.put(gameId, game);
                         if (gameId >= nextGameId) {
@@ -90,7 +82,7 @@ public class Main {
 
     public void saveData() {
         try {
-            // Salvează doar jocurile VALIDE
+
             saveValidGames();
             saveUsersManually();
 
@@ -106,7 +98,7 @@ public class Main {
             for (Map.Entry<Integer, Game> entry : allGames.entrySet()) {
                 Game game = entry.getValue();
 
-                // VERIFICARE: Sari peste jocurile cu player1 sau player2 null
+
                 if (game == null || game.getPlayer1() == null || game.getPlayer2() == null) {
                     System.out.println("Skipping invalid game during save: " +
                             (game != null ? "ID=" + game.getId() : "NULL"));
@@ -116,7 +108,6 @@ public class Main {
                 org.json.simple.JSONObject gameObj = new org.json.simple.JSONObject();
                 gameObj.put("id", game.getId());
 
-                // Jucători
                 org.json.simple.JSONArray playersArray = new org.json.simple.JSONArray();
 
                 org.json.simple.JSONObject player1Obj = new org.json.simple.JSONObject();
@@ -133,7 +124,6 @@ public class Main {
 
                 gameObj.put("currentPlayerColor", game.getCurrentPlayerColor());
 
-                // Piese pe tablă
                 org.json.simple.JSONArray boardArray = new org.json.simple.JSONArray();
                 if (game.getBoard() != null) {
                     for (ChessPair<Position, Piece> pair : game.getBoard().getAllPieces()) {
@@ -211,7 +201,6 @@ public class Main {
     public Game createNewGame(String playerName, Colors playerColor) {
         Colors computerColor = (playerColor == Colors.WHITE) ? Colors.BLACK : Colors.WHITE;
 
-        // VALIDARE: asigură-te că playerName nu e null
         if (playerName == null || playerName.trim().isEmpty()) {
             playerName = "Player1";
         }
@@ -301,7 +290,7 @@ public class Main {
 
     private Player getHumanPlayer(Game game) {
         if (game.getPlayer1() == null || game.getPlayer2() == null) {
-            // Returnează un player default pentru a evita NullPointerException
+
             return new Player("DefaultPlayer", Colors.WHITE);
         }
 
@@ -393,7 +382,6 @@ public class Main {
 
         List<Game> userGames = new ArrayList<>();
         for (Game game : allGames.values()) {
-            // Verifică dacă jocul este valid și aparține utilizatorului
             if (game != null && game.isValidGame() &&
                     currentUser.getGameIds().contains(game.getId())) {
                 userGames.add(game);

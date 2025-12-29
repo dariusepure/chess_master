@@ -14,12 +14,10 @@ public class ContinueGameFrame extends JFrame {
     public ContinueGameFrame(Main app, ChessGUI gui) {
         this.app = app;
         this.gui = gui;
-
         setTitle("Continue Game - Chess Master");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-
         initComponents();
         loadGames();
     }
@@ -27,48 +25,34 @@ public class ContinueGameFrame extends JFrame {
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(new Color(240, 240, 240));
-
-        // Header simplu
         JLabel titleLabel = new JLabel("Continue Saved Game", SwingConstants.CENTER);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
         titleLabel.setForeground(new Color(76, 175, 80));
         add(titleLabel, BorderLayout.NORTH);
-
-        // Main panel
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         mainPanel.setBackground(Color.WHITE);
-
-        // List model simplu
         listModel = new DefaultListModel<>();
         gamesList = new JList<>(listModel);
         gamesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         gamesList.setFont(new Font("SansSerif", Font.PLAIN, 14));
         gamesList.setBackground(Color.WHITE);
-
-        // Render simplu
         gamesList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value,
                                                           int index, boolean isSelected, boolean cellHasFocus) {
                 Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
                 if (value instanceof Game) {
                     Game game = (Game) value;
-
-                    // VERIFICĂRI NULL AICI
                     String text = "Game #" + game.getId() + " - ";
-
                     if (game.getPlayer1() != null && game.getPlayer2() != null) {
                         text += game.getPlayer1().getName() + " vs " + game.getPlayer2().getName();
                         text += " (" + game.getHistory().size() + " moves)";
                     } else {
                         text += "Invalid game data";
                     }
-
                     setText(text);
-
                     if (isSelected) {
                         setBackground(new Color(200, 230, 255));
                         setForeground(Color.BLACK);
@@ -85,23 +69,18 @@ public class ContinueGameFrame extends JFrame {
         JScrollPane scrollPane = new JScrollPane(gamesList);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Select a game to continue"));
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-
-        // Butoane simple
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBackground(Color.WHITE);
-
         JButton continueButton = new JButton("Continue Game");
         continueButton.setFont(new Font("SansSerif", Font.BOLD, 14));
         continueButton.setBackground(new Color(76, 175, 80));
         continueButton.setForeground(Color.WHITE);
         continueButton.addActionListener(e -> continueSelectedGame());
-
         JButton deleteButton = new JButton("Delete Game");
         deleteButton.setFont(new Font("SansSerif", Font.BOLD, 14));
         deleteButton.setBackground(new Color(220, 80, 80));
         deleteButton.setForeground(Color.WHITE);
         deleteButton.addActionListener(e -> deleteSelectedGame());
-
         JButton backButton = new JButton("Back to Menu");
         backButton.setFont(new Font("SansSerif", Font.BOLD, 14));
         backButton.setBackground(Color.GRAY);
@@ -110,33 +89,25 @@ public class ContinueGameFrame extends JFrame {
             gui.showMainMenu();
             dispose();
         });
-
         buttonPanel.add(continueButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(backButton);
-
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
         add(mainPanel, BorderLayout.CENTER);
     }
 
     private void loadGames() {
         listModel.clear();
-
-        // Obține jocurile din app
         List<Game> allGames = new ArrayList<>(app.getAllGames().values());
 
         if (allGames.isEmpty()) {
-            listModel.addElement(null); // Pentru mesajul "No games"
+            listModel.addElement(null);
         } else {
-            // Filtrează doar jocurile valide
             for (Game game : allGames) {
                 if (game != null && game.getPlayer1() != null && game.getPlayer2() != null) {
                     listModel.addElement(game);
                 }
             }
-
-            // Dacă niciun joc valid nu a fost găsit
             if (listModel.size() == 0) {
                 listModel.addElement(null);
             }
@@ -145,7 +116,6 @@ public class ContinueGameFrame extends JFrame {
 
     private void continueSelectedGame() {
         Object selected = gamesList.getSelectedValue();
-
         if (selected == null) {
             JOptionPane.showMessageDialog(this,
                     "Please select a game from the list!",
@@ -153,7 +123,6 @@ public class ContinueGameFrame extends JFrame {
                     JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         if (!(selected instanceof Game)) {
             JOptionPane.showMessageDialog(this,
                     "Invalid selection!",
@@ -163,8 +132,6 @@ public class ContinueGameFrame extends JFrame {
         }
 
         Game selectedGame = (Game) selected;
-
-        // Verificare finală pentru null
         if (selectedGame.getPlayer1() == null || selectedGame.getPlayer2() == null) {
             JOptionPane.showMessageDialog(this,
                     "This game has corrupted data. Please delete it.",
@@ -172,15 +139,12 @@ public class ContinueGameFrame extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        // Deschide jocul
         gui.showGameScreen(selectedGame);
         dispose();
     }
 
     private void deleteSelectedGame() {
         Object selected = gamesList.getSelectedValue();
-
         if (selected == null) {
             JOptionPane.showMessageDialog(this,
                     "Please select a game to delete!",
@@ -188,13 +152,10 @@ public class ContinueGameFrame extends JFrame {
                     JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         if (!(selected instanceof Game)) {
             return;
         }
-
         Game selectedGame = (Game) selected;
-
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Delete game #" + selectedGame.getId() + "?",
                 "Confirm Delete",
@@ -202,21 +163,13 @@ public class ContinueGameFrame extends JFrame {
                 JOptionPane.WARNING_MESSAGE);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            // Șterge jocul
             app.getAllGames().remove(selectedGame.getId());
-
-            // Șterge din lista utilizatorului
             User currentUser = app.getCurrentUser();
             if (currentUser != null) {
                 currentUser.removeGame(selectedGame);
             }
-
-            // Salvează
             app.saveData();
-
-            // Reîncarcă lista
             loadGames();
-
             JOptionPane.showMessageDialog(this,
                     "Game deleted successfully!",
                     "Success",

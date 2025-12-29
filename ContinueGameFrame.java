@@ -32,7 +32,7 @@ public class ContinueGameFrame extends JFrame {
         JLabel titleLabel = new JLabel("Continue Saved Game", SwingConstants.CENTER);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
-        titleLabel.setForeground(new Color(70, 130, 180));
+        titleLabel.setForeground(new Color(76, 175, 80));
         add(titleLabel, BorderLayout.NORTH);
 
         // Main panel
@@ -92,7 +92,7 @@ public class ContinueGameFrame extends JFrame {
 
         JButton continueButton = new JButton("Continue Game");
         continueButton.setFont(new Font("SansSerif", Font.BOLD, 14));
-        continueButton.setBackground(new Color(70, 130, 180));
+        continueButton.setBackground(new Color(76, 175, 80));
         continueButton.setForeground(Color.WHITE);
         continueButton.addActionListener(e -> continueSelectedGame());
 

@@ -23,7 +23,7 @@ public class GameFrame extends JFrame implements GameObserver {
     private JTextArea movesHistoryArea;
 
     private final Color LIGHT_SQUARE = Color.WHITE;
-    private final Color DARK_SQUARE = new Color(0, 102, 0);
+    private final Color DARK_SQUARE = new Color(76, 175, 80);
     private final Color SELECTED_COLOR = new Color(144, 238, 144);
     private final Color HIGHLIGHT_COLOR = new Color(255, 255, 153);
     private final Color CAPTURE_COLOR = new Color(255, 100, 100);
@@ -55,7 +55,7 @@ public class GameFrame extends JFrame implements GameObserver {
         getContentPane().setBackground(new Color(240, 240, 240));
 
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(70, 130, 180));
+        headerPanel.setBackground(new Color(76, 175, 80));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
         gameStatusLabel = new JLabel("Chess Game");
@@ -227,13 +227,13 @@ public class GameFrame extends JFrame implements GameObserver {
 
 
 
-        JButton resignButton = createActionButton("🏳️ Resign");
+        JButton resignButton = createActionButton("Give Up");
         resignButton.addActionListener(e -> resignGame());
 
-        JButton saveButton = createActionButton("💾 Save & Exit");
+        JButton saveButton = createActionButton("Save & Exit");
         saveButton.addActionListener(e -> saveAndExit());
 
-        JButton menuButton = createActionButton("🏠 Main Menu");
+        JButton menuButton = createActionButton("Main Menu");
         menuButton.addActionListener(e -> returnToMenu());
 
         panel.add(resignButton);
@@ -246,7 +246,7 @@ public class GameFrame extends JFrame implements GameObserver {
     private JButton createActionButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("SansSerif", Font.BOLD, 14));
-        button.setBackground(new Color(70, 130, 180));
+        button.setBackground(new Color(76, 175, 80));
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
         button.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
@@ -257,7 +257,7 @@ public class GameFrame extends JFrame implements GameObserver {
                 button.setBackground(new Color(100, 149, 237));
             }
             public void mouseExited(MouseEvent evt) {
-                button.setBackground(new Color(70, 130, 180));
+                button.setBackground(new Color(76, 175, 80));
             }
         });
 

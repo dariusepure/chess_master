@@ -24,7 +24,7 @@ public class MainMenuFrame extends JFrame {
 
         // Header
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(70, 130, 180));
+        headerPanel.setBackground(new Color(76, 175, 80));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel welcomeLabel = new JLabel("Welcome to Chess Master", SwingConstants.CENTER);
@@ -102,7 +102,7 @@ public class MainMenuFrame extends JFrame {
     private JButton createMenuButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("SansSerif", Font.BOLD, 16));
-        button.setBackground(new Color(70, 130, 180));
+        button.setBackground(new Color(76, 175, 80));
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
         button.setBorder(BorderFactory.createEmptyBorder(15, 30, 15, 30));
@@ -113,7 +113,7 @@ public class MainMenuFrame extends JFrame {
                 button.setBackground(new Color(100, 149, 237));
             }
             public void mouseExited(MouseEvent evt) {
-                button.setBackground(new Color(70, 130, 180));
+                button.setBackground(new Color(76, 175, 80));
             }
         });
 

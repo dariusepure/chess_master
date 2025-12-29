@@ -40,9 +40,34 @@ public class ChessGUI {
         currentFrame.setVisible(true);
     }
 
-    public void showGameOverScreen(Game game, String result, int points) {
+    // ADAUGAȚI ACEASTĂ METODĂ NOUĂ
+    public void showGameOverScreen(Game game, String result, int bonusPoints) {
+        // Calculează punctele din capturi
+        int capturePoints = 0;
+
+        // Determină care jucător este omul (nu computerul)
+        Player humanPlayer = null;
+        if (game.getPlayer1() != null && !game.getPlayer1().getName().equals("Computer")) {
+            humanPlayer = game.getPlayer1();
+        } else if (game.getPlayer2() != null && !game.getPlayer2().getName().equals("Computer")) {
+            humanPlayer = game.getPlayer2();
+        }
+
+        if (humanPlayer != null) {
+            capturePoints = humanPlayer.getPoints(); // Player.getPoints() returnează deja punctele din capturi
+        }
+
+
+        // Deschide fereastra cu TOATE punctele
         disposeCurrentFrame();
-        currentFrame = new GameOverFrame(app, game, result, points, this);
+        currentFrame = new GameOverFrame(
+                app,
+                game,
+                result,
+                bonusPoints,    // Bonus joc (300, -300, 150, -150)
+                capturePoints,  // Puncte din capturi
+                this            // ChessGUI
+        );
         currentFrame.setVisible(true);
     }
 

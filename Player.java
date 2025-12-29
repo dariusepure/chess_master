@@ -18,22 +18,27 @@ public class Player {
         this("Unknown", Colors.WHITE);
     }
 
-    public void makeMove(Position from, Position to, Board board) throws InvalidMoveException {
+    public void makeMove(Position from, Position to, Board board, ChessGUI gui) throws InvalidMoveException {
         if (board == null) {
             throw new InvalidMoveException("Board is null");
         }
         if (from == null || to == null) {
             throw new InvalidMoveException("Invalid positions");
         }
+
         Piece piece = board.getPieceAt(from);
         if (piece == null) {
             throw new InvalidMoveException("No piece at " + from);
         }
+
         if (piece.getColor() != this.color) {
             throw new InvalidMoveException("Piece at " + from + " does not belong to you");
         }
-        board.movePiece(from, to, this);
+
+        // Apelăm metoda completă din Board care permite alegerea piesei la promovare
+        board.movePiece(from, to, this, gui);
     }
+
 
     public void addCapturedPiece(Piece originalPiece) {
         if (originalPiece == null) {

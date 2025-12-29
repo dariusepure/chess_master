@@ -35,6 +35,7 @@ public class GameOverFrame extends JFrame {
         JPanel detailsPanel = new JPanel(new GridLayout(4, 1, 10, 10));
         Player player1 = game.getPlayer1();
         Player player2 = game.getPlayer2();
+
         detailsPanel.add(new JLabel("Players: " + player1.getName() + " vs " + player2.getName()));
         detailsPanel.add(new JLabel("Moves played: " + game.getHistory().size()));
         detailsPanel.add(new JLabel("Points earned/lost: " + (points >= 0 ? "+" : "") + points));

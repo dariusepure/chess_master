@@ -10,7 +10,7 @@ public class MainMenuFrame extends JFrame {
         this.app = app;
         this.gui = gui;
 
-        setTitle("Chess Master - Main Menu");
+        setTitle("Chess Master");
         setSize(600, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);

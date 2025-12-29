@@ -12,7 +12,7 @@ public class LoginFrame extends JFrame {
     public LoginFrame(Main app, ChessGUI gui) {
         this.app = app;
         this.gui = gui;
-        setTitle("Chess - Login");
+        setTitle("Chess Master");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);

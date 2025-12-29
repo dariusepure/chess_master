@@ -14,7 +14,7 @@ public class ContinueGameFrame extends JFrame {
     public ContinueGameFrame(Main app, ChessGUI gui) {
         this.app = app;
         this.gui = gui;
-        setTitle("Continue Game - Chess Master");
+        setTitle("Chess Master");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);

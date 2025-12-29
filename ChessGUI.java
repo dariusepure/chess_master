@@ -8,58 +8,83 @@ public class ChessGUI {
         this.app = app;
     }
 
+    // ================== SCREENS ==================
+
     public void showLoginScreen() {
-        if (currentFrame != null) {
-            currentFrame.dispose();
-        }
+        disposeCurrentFrame();
         currentFrame = new LoginFrame(app, this);
         currentFrame.setVisible(true);
     }
 
     public void showMainMenu() {
-        if (currentFrame != null) {
-            currentFrame.dispose();
-        }
+        disposeCurrentFrame();
         currentFrame = new MainMenuFrame(app, this);
         currentFrame.setVisible(true);
     }
 
     public void showNewGameScreen() {
-        if (currentFrame != null) {
-            currentFrame.dispose();
-        }
+        disposeCurrentFrame();
         currentFrame = new NewGameFrame(app, this);
         currentFrame.setVisible(true);
     }
 
     public void showContinueGameScreen() {
-        if (currentFrame != null) {
-            currentFrame.dispose();
-        }
+        disposeCurrentFrame();
         currentFrame = new ContinueGameFrame(app, this);
         currentFrame.setVisible(true);
     }
 
     public void showGameScreen(Game game) {
-        if (currentFrame != null) {
-            currentFrame.dispose();
-        }
+        disposeCurrentFrame();
         currentFrame = new GameFrame(app, game, this);
         currentFrame.setVisible(true);
     }
 
     public void showGameOverScreen(Game game, String result, int points) {
-        if (currentFrame != null) {
-            currentFrame.dispose();
-        }
+        disposeCurrentFrame();
         currentFrame = new GameOverFrame(app, game, result, points, this);
         currentFrame.setVisible(true);
     }
 
     public void exit() {
+        disposeCurrentFrame();
+        System.exit(0);
+    }
+
+    // ================== PROMOVARE PION ==================
+
+    /**
+     * Afiseaza dialogul de promovare pion
+     * @return char tip piesa: Q, R, B, N
+     */
+    public char showPromotionDialog() {
+        String[] options = {"Queen", "Rook", "Bishop", "Knight"};
+
+        int choice = JOptionPane.showOptionDialog(
+                currentFrame,
+                "Choose a piece for promotion:",
+                "Pawn Promotion",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+
+        return switch (choice) {
+            case 0 -> 'Q';
+            case 1 -> 'R';
+            case 2 -> 'B';
+            case 3 -> 'N';
+            default -> 'Q'; // fallback dacă se închide dialogul
+        };
+    }
+
+    // ================== UTILS ==================
+
+    private void disposeCurrentFrame() {
         if (currentFrame != null) {
             currentFrame.dispose();
         }
-        System.exit(0);
     }
 }

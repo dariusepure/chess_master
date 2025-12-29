@@ -237,7 +237,7 @@ public class GameFrame extends JFrame implements GameObserver {
                     Piece targetPiece = game.getBoard().getPieceAt(position);
                     boolean isCapture = (targetPiece != null && movingPiece != null &&
                             targetPiece.getColor() != movingPiece.getColor());
-                    currentPlayer.makeMove(selectedPosition, position, game.getBoard());
+                    currentPlayer.makeMove(selectedPosition, position, game.getBoard(),gui);
                     game.addMove(currentPlayer, selectedPosition, position);
                     addMoveToHistory(currentPlayer, selectedPosition, position, isCapture, targetPiece);
                     checkGameState();
@@ -311,7 +311,7 @@ public class GameFrame extends JFrame implements GameObserver {
             Piece targetPiece = board.getPieceAt(to);
             boolean isCapture = (targetPiece != null && targetPiece.getColor() != piece.getColor());
             try {
-                computer.makeMove(from, to, board);
+                computer.makeMove(from, to, board,gui);
                 game.addMove(computer, from, to);
                 addMoveToHistory(computer, from, to, isCapture, targetPiece);
                 moveMade = true;

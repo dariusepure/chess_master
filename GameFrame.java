@@ -23,10 +23,10 @@ public class GameFrame extends JFrame implements GameObserver {
     private JTextArea movesHistoryArea;
 
     private final Color LIGHT_SQUARE = Color.WHITE;
-    private final Color DARK_SQUARE = new Color(0, 102, 0); // #006600
+    private final Color DARK_SQUARE = new Color(0, 102, 0);
     private final Color SELECTED_COLOR = new Color(144, 238, 144);
-    private final Color HIGHLIGHT_COLOR = new Color(255, 255, 153); // Galben pentru mutări normale
-    private final Color CAPTURE_COLOR = new Color(255, 100, 100);   // Roșu pentru capturi
+    private final Color HIGHLIGHT_COLOR = new Color(255, 255, 153);
+    private final Color CAPTURE_COLOR = new Color(255, 100, 100);
 
     private Timer computerTimer;
 
@@ -227,13 +227,13 @@ public class GameFrame extends JFrame implements GameObserver {
 
 
 
-        JButton resignButton = createActionButton("Give Up");
+        JButton resignButton = createActionButton("🏳️ Resign");
         resignButton.addActionListener(e -> resignGame());
 
-        JButton saveButton = createActionButton("Save & Exit");
+        JButton saveButton = createActionButton("💾 Save & Exit");
         saveButton.addActionListener(e -> saveAndExit());
 
-        JButton menuButton = createActionButton("Main Menu");
+        JButton menuButton = createActionButton("🏠 Main Menu");
         menuButton.addActionListener(e -> returnToMenu());
 
         panel.add(resignButton);
@@ -292,10 +292,17 @@ public class GameFrame extends JFrame implements GameObserver {
         } else {
             if (highlightedMoves != null && highlightedMoves.contains(position)) {
                 try {
+                    // === MODIFICARE AICI: Verifică dacă este captură înainte de mutare ===
+                    Piece movingPiece = game.getBoard().getPieceAt(selectedPosition);
+                    Piece targetPiece = game.getBoard().getPieceAt(position);
+                    boolean isCapture = (targetPiece != null && movingPiece != null &&
+                            targetPiece.getColor() != movingPiece.getColor());
+
                     currentPlayer.makeMove(selectedPosition, position, game.getBoard());
                     game.addMove(currentPlayer, selectedPosition, position);
 
-                    addMoveToHistory(currentPlayer, selectedPosition, position);
+                    // === CORECTAT: Pasează informația dacă este captură ===
+                    addMoveToHistory(currentPlayer, selectedPosition, position, isCapture, targetPiece);
 
                     checkGameState();
 
@@ -379,11 +386,16 @@ public class GameFrame extends JFrame implements GameObserver {
 
             Position to = validMoves.get(rand.nextInt(validMoves.size()));
 
+            // Verifică dacă este captură pentru computer
+            Piece targetPiece = board.getPieceAt(to);
+            boolean isCapture = (targetPiece != null && targetPiece.getColor() != piece.getColor());
+
             try {
                 computer.makeMove(from, to, board);
                 game.addMove(computer, from, to);
 
-                addMoveToHistory(computer, from, to);
+                // === CORECTAT: Adaugă la istoric cu informația corectă ===
+                addMoveToHistory(computer, from, to, isCapture, targetPiece);
 
                 moveMade = true;
                 gameStatusLabel.setText("Computer moved: " + from + "-" + to);
@@ -445,14 +457,16 @@ public class GameFrame extends JFrame implements GameObserver {
         }
     }
 
-    private void addMoveToHistory(Player player, Position from, Position to) {
+    // === METODĂ CORECTATĂ ===
+    private void addMoveToHistory(Player player, Position from, Position to,
+                                  boolean isCapture, Piece capturedPiece) {
         String moveText = String.format("%s: %s-%s",
                 player.getName().substring(0, Math.min(3, player.getName().length())),
                 from, to);
 
-        Piece captured = game.getBoard().getPieceAt(to);
-        if (captured != null) {
-            moveText += " (captures " + getPieceName(captured.getType()) + ")";
+        // === CORECTAT: Afișează "captures" doar dacă este cu adevărat captură ===
+        if (isCapture && capturedPiece != null) {
+            moveText += " (captures " + getPieceName(capturedPiece.getType()) + ")";
         }
 
         movesHistoryArea.append(moveText + "\n");
@@ -484,21 +498,17 @@ public class GameFrame extends JFrame implements GameObserver {
                 if (selectedPosition != null && pos.equals(selectedPosition)) {
                     squares[row][col].setBackground(SELECTED_COLOR);
                 } else if (highlightedMoves != null && highlightedMoves.contains(pos)) {
-                    // VERIFICĂ DACĂ E CAPTURĂ SAU MUTARE NORMALĂ
                     Piece targetPiece = board.getPieceAt(pos);
 
                     if (targetPiece != null && selectedPiece != null &&
                             targetPiece.getColor() != selectedPiece.getColor()) {
-                        // CAPTURĂ - ROSU
                         squares[row][col].setBackground(CAPTURE_COLOR);
                         squares[row][col].setBorder(BorderFactory.createLineBorder(Color.RED, 2));
                     } else {
-                        // MUTARE NORMALĂ - GALBEN
                         squares[row][col].setBackground(HIGHLIGHT_COLOR);
                         squares[row][col].setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
                     }
                 } else {
-                    // CULOAREA NORMALĂ A PĂTRATULUI
                     if ((row + col) % 2 == 0) {
                         squares[row][col].setBackground(LIGHT_SQUARE);
                     } else {
@@ -566,8 +576,8 @@ public class GameFrame extends JFrame implements GameObserver {
         String whiteCapturedStr = blackPlayer.getCapturedPiecesString();
         String blackCapturedStr = whitePlayer.getCapturedPiecesString();
 
-        capturedWhiteLabel.setText("White: " + whiteCapturedStr);
-        capturedBlackLabel.setText("Black: " + blackCapturedStr);
+        capturedWhiteLabel.setText(whiteCapturedStr);
+        capturedBlackLabel.setText(blackCapturedStr);
     }
 
     private String getPieceSymbol(Piece piece) {
@@ -584,6 +594,7 @@ public class GameFrame extends JFrame implements GameObserver {
             default: return "";
         }
     }
+
 
 
     private void resignGame() {

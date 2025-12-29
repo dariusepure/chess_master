@@ -41,8 +41,25 @@ public class LoginFrame extends JFrame {
         passwordField = new JPasswordField();
         formPanel.add(passwordField);
 
-        // Butoane
+        // Buton Login - VERDE cu text ALB
         JButton loginButton = new JButton("Login");
+        loginButton.setBackground(new Color(76, 175, 80)); // Verde
+        loginButton.setForeground(Color.WHITE); // Text alb
+        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
+        loginButton.setFocusPainted(false);
+        loginButton.setBorderPainted(false);
+        loginButton.setOpaque(true);
+
+        // Adăugăm hover effect
+        loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                loginButton.setBackground(new Color(56, 142, 60)); // Verde mai închis
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                loginButton.setBackground(new Color(76, 175, 80)); // Verde original
+            }
+        });
+
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -50,7 +67,25 @@ public class LoginFrame extends JFrame {
             }
         });
 
+        // Buton Register - VERDE cu text ALB
         JButton registerButton = new JButton("Create Account");
+        registerButton.setBackground(new Color(76, 175, 80)); // Verde
+        registerButton.setForeground(Color.WHITE); // Text alb
+        registerButton.setFont(new Font("Arial", Font.BOLD, 14));
+        registerButton.setFocusPainted(false);
+        registerButton.setBorderPainted(false);
+        registerButton.setOpaque(true);
+
+        // Adăugăm hover effect
+        registerButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                registerButton.setBackground(new Color(56, 142, 60)); // Verde mai închis
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                registerButton.setBackground(new Color(76, 175, 80)); // Verde original
+            }
+        });
+
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -62,8 +97,6 @@ public class LoginFrame extends JFrame {
         formPanel.add(registerButton);
 
         mainPanel.add(formPanel, BorderLayout.CENTER);
-
-
 
         add(mainPanel);
     }

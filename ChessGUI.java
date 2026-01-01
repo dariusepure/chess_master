@@ -8,8 +8,6 @@ public class ChessGUI {
         this.app = app;
     }
 
-    // ================== SCREENS ==================
-
     public void showLoginScreen() {
         disposeCurrentFrame();
         currentFrame = new LoginFrame(app, this);
@@ -40,12 +38,8 @@ public class ChessGUI {
         currentFrame.setVisible(true);
     }
 
-    // ADAUGAȚI ACEASTĂ METODĂ NOUĂ
     public void showGameOverScreen(Game game, String result, int bonusPoints) {
-        // Calculează punctele din capturi
         int capturePoints = 0;
-
-        // Determină care jucător este omul (nu computerul)
         Player humanPlayer = null;
         if (game.getPlayer1() != null && !game.getPlayer1().getName().equals("Computer")) {
             humanPlayer = game.getPlayer1();
@@ -54,19 +48,16 @@ public class ChessGUI {
         }
 
         if (humanPlayer != null) {
-            capturePoints = humanPlayer.getPoints(); // Player.getPoints() returnează deja punctele din capturi
+            capturePoints = humanPlayer.getPoints();
         }
-
-
-        // Deschide fereastra cu TOATE punctele
         disposeCurrentFrame();
         currentFrame = new GameOverFrame(
                 app,
                 game,
                 result,
-                bonusPoints,    // Bonus joc (300, -300, 150, -150)
-                capturePoints,  // Puncte din capturi
-                this            // ChessGUI
+                bonusPoints,
+                capturePoints,
+                this
         );
         currentFrame.setVisible(true);
     }
@@ -76,12 +67,6 @@ public class ChessGUI {
         System.exit(0);
     }
 
-    // ================== PROMOVARE PION ==================
-
-    /**
-     * Afiseaza dialogul de promovare pion
-     * @return char tip piesa: Q, R, B, N
-     */
     public char showPromotionDialog() {
         String[] options = {"Queen", "Rook", "Bishop", "Knight"};
 
@@ -101,11 +86,9 @@ public class ChessGUI {
             case 1 -> 'R';
             case 2 -> 'B';
             case 3 -> 'N';
-            default -> 'Q'; // fallback dacă se închide dialogul
+            default -> 'Q';
         };
     }
-
-    // ================== UTILS ==================
 
     private void disposeCurrentFrame() {
         if (currentFrame != null) {

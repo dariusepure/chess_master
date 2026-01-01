@@ -21,8 +21,6 @@ public class MainMenuFrame extends JFrame {
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(new Color(240, 240, 240));
-
-        // Header
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(76, 175, 80));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -38,7 +36,6 @@ public class MainMenuFrame extends JFrame {
         headerPanel.add(welcomeLabel, BorderLayout.CENTER);
         headerPanel.add(userLabel, BorderLayout.EAST);
 
-        // Main buttons panel
         JPanel buttonsPanel = new JPanel(new GridLayout(5, 1, 15, 15));
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
         buttonsPanel.setBackground(new Color(240, 240, 240));
@@ -46,10 +43,8 @@ public class MainMenuFrame extends JFrame {
         JButton newGameButton = createMenuButton("New Game");
         newGameButton.addActionListener(e -> gui.showNewGameScreen());
 
-        // BUTONUL CORECTAT PENTRU CONTINUE GAME
         JButton continueGameButton = createMenuButton("Continue Game");
         continueGameButton.addActionListener(e -> {
-            // Verifică dacă există jocuri salvate
             if (app.getCurrentUser().getActiveGames().isEmpty()) {
                 JOptionPane.showMessageDialog(this,
                         "No saved games found!\nStart a new game first.",
@@ -80,7 +75,6 @@ public class MainMenuFrame extends JFrame {
         buttonsPanel.add(logoutButton);
         buttonsPanel.add(exitButton);
 
-        // Footer
         JPanel footerPanel = new JPanel(new BorderLayout());
         footerPanel.setBackground(new Color(245, 245, 245));
         footerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));

@@ -5,8 +5,6 @@ import java.util.TreeSet;
 public class Board {
     private TreeSet<ChessPair<Position, Piece>> pieces = new TreeSet<>();
 
-    // ================= INITIALIZARE =================
-
     public void initialize() {
         pieces.clear();
 
@@ -44,8 +42,6 @@ public class Board {
         pieces.add(new ChessPair<>(position, piece));
     }
 
-    // ================= MUTARE =================
-
     public void movePiece(Position from, Position to, Player movingPlayer, ChessGUI gui) throws InvalidMoveException {
         if (!isValidMove(from, to)) {
             throw new InvalidMoveException("Invalid move from " + from + " to " + to);
@@ -77,7 +73,6 @@ public class Board {
         movingPiece.setPosition(to);
         pieces.add(new ChessPair<>(to, movingPiece));
 
-        // ===== PROMOVARE PION =====
         if (movingPiece instanceof Pawn) {
             Pawn pawn = (Pawn) movingPiece;
             pawn.setFirstMove(false);
@@ -89,8 +84,6 @@ public class Board {
             }
         }
     }
-
-    // ================= PROMOVARE =================
 
     private void promotePawn(Position to, Pawn pawn, ChessGUI gui) {
         ChessPair<Position, Piece> pawnPair = findPairByPositionAndPiece(to, pawn);
@@ -108,8 +101,6 @@ public class Board {
 
         pieces.add(new ChessPair<>(to, promotedPiece));
     }
-
-    // ================= VALIDARE =================
 
     public boolean isValidMove(Position from, Position to) {
         if (to.getX() < 'A' || to.getX() > 'H' || to.getY() < 1 || to.getY() > 8) return false;
@@ -176,8 +167,6 @@ public class Board {
         }
         return false;
     }
-
-    // ================= UTILITARE =================
 
     public Piece getPieceAt(Position position) {
         for (ChessPair<Position, Piece> pair : pieces) {

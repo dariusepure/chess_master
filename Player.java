@@ -34,8 +34,6 @@ public class Player {
         if (piece.getColor() != this.color) {
             throw new InvalidMoveException("Piece at " + from + " does not belong to you");
         }
-
-        // Apelăm metoda completă din Board care permite alegerea piesei la promovare
         board.movePiece(from, to, this, gui);
     }
 

@@ -136,7 +136,6 @@ public class Main {
                 }
                 gameObj.put("board", boardArray);
 
-                // Mutări
                 org.json.simple.JSONArray movesArray = new org.json.simple.JSONArray();
                 for (Move move : game.getHistory()) {
                     org.json.simple.JSONObject moveObj = new org.json.simple.JSONObject();
@@ -179,7 +178,6 @@ public class Main {
 
                 org.json.simple.JSONArray gamesArray = new org.json.simple.JSONArray();
                 for (Integer gameId : user.getGameIds()) {
-                    // Verifică dacă jocul există înainte de a-l adăuga
                     if (allGames.containsKey(gameId)) {
                         gamesArray.add(gameId);
                     }
@@ -224,7 +222,7 @@ public class Main {
     }
 
     public void saveGame(Game game) {
-        // Verifică dacă jocul este valid înainte de salvare
+
         if (game != null && game.getPlayer1() != null && game.getPlayer2() != null) {
             allGames.put(game.getId(), game);
             saveData();

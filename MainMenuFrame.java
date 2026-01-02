@@ -34,27 +34,39 @@ public class MainMenuFrame extends JFrame {
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
         buttonsPanel.setBackground(new Color(240, 240, 240));
         JButton newGameButton = createStyledButton("New Game", true);
-        newGameButton.addActionListener(e -> gui.showNewGameScreen());
+        newGameButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gui.showNewGameScreen();
+            }
+        });
         JButton continueGameButton = createStyledButton("Continue Game", true);
-        continueGameButton.addActionListener(e -> {
-            if (app.getCurrentUser().getActiveGames().isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "No saved games found!\nStart a new game first.",
-                        "No Games",
-                        JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                gui.showContinueGameScreen();
-                dispose();
+        continueGameButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (app.getCurrentUser().getActiveGames().isEmpty()) {
+                    JOptionPane.showMessageDialog(MainMenuFrame.this,
+                            "No saved games found!\nStart a new game first.",
+                            "No Games",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    gui.showContinueGameScreen();
+                    dispose();
+                }
             }
         });
         JButton logoutButton = createStyledButton("Logout", true);
-        logoutButton.addActionListener(e -> {
-            app.logout();
-            gui.showLoginScreen();
-            dispose();
+        logoutButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                app.logout();
+                gui.showLoginScreen();
+                dispose();
+            }
         });
         JButton exitButton = createStyledButton("Exit", true);
-        exitButton.addActionListener(e -> gui.exit());
+        exitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gui.exit();
+            }
+        });
         buttonsPanel.add(newGameButton);
         buttonsPanel.add(continueGameButton);
         buttonsPanel.add(logoutButton);

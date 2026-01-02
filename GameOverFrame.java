@@ -49,17 +49,25 @@ public class GameOverFrame extends JFrame {
         mainPanel.add(detailsPanel, BorderLayout.CENTER);
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         JButton newGameButton = new JButton("New Game");
-        newGameButton.addActionListener(e -> {
-            dispose();
-            gui.showNewGameScreen();
+        newGameButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                gui.showNewGameScreen();
+            }
         });
         JButton mainMenuButton = new JButton("Main Menu");
-        mainMenuButton.addActionListener(e -> {
-            dispose();
-            gui.showMainMenu();
+        mainMenuButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                gui.showMainMenu();
+            }
         });
         JButton exitButton = new JButton("Exit");
-        exitButton.addActionListener(e -> gui.exit());
+        exitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gui.exit();
+            }
+        });
         buttonPanel.add(newGameButton);
         buttonPanel.add(mainMenuButton);
         buttonPanel.add(exitButton);

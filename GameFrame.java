@@ -89,7 +89,11 @@ public class GameFrame extends JFrame implements GameObserver {
                 }
                 final int r = row;
                 final int c = col;
-                squares[row][col].addActionListener(e -> handleSquareClick(r, c));
+                squares[row][col].addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        handleSquareClick(r, c);
+                    }
+                });
                 boardPanel.add(squares[row][col]);
             }
         }
@@ -186,11 +190,23 @@ public class GameFrame extends JFrame implements GameObserver {
         panel.setBorder(BorderFactory.createTitledBorder("Actions"));
         panel.setBackground(Color.WHITE);
         JButton resignButton = createStyledButton("Give Up", false);
-        resignButton.addActionListener(e -> resignGame());
+        resignButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                resignGame();
+            }
+        });
         JButton saveButton = createStyledButton("Save & Exit", false);
-        saveButton.addActionListener(e -> saveAndExit());
+        saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                saveAndExit();
+            }
+        });
         JButton menuButton = createStyledButton("Main Menu", false);
-        menuButton.addActionListener(e -> returnToMenu());
+        menuButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                returnToMenu();
+            }
+        });
         panel.add(resignButton);
         panel.add(saveButton);
         panel.add(menuButton);
@@ -449,7 +465,7 @@ public class GameFrame extends JFrame implements GameObserver {
             Player human = game.getHumanPlayer();
             int points = human.getPoints();
             app.endGame(game, false);
-            gui.showGameOverScreen(game, "Stalemate - Draw", points);
+            gui.showGameOverScreen(game, "Stalemate - Draw", 150);
             return;
         }
         Board board = game.getBoard();

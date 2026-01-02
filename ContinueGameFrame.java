@@ -75,19 +75,29 @@ public class ContinueGameFrame extends JFrame {
         continueButton.setFont(new Font("SansSerif", Font.BOLD, 14));
         continueButton.setBackground(new Color(76, 175, 80));
         continueButton.setForeground(Color.WHITE);
-        continueButton.addActionListener(e -> continueSelectedGame());
+        continueButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                continueSelectedGame();
+            }
+        });
         JButton deleteButton = new JButton("Delete Game");
         deleteButton.setFont(new Font("SansSerif", Font.BOLD, 14));
         deleteButton.setBackground(new Color(220, 80, 80));
         deleteButton.setForeground(Color.WHITE);
-        deleteButton.addActionListener(e -> deleteSelectedGame());
+        deleteButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                deleteSelectedGame();
+            }
+        });
         JButton backButton = new JButton("Back to Menu");
         backButton.setFont(new Font("SansSerif", Font.BOLD, 14));
         backButton.setBackground(Color.GRAY);
         backButton.setForeground(Color.WHITE);
-        backButton.addActionListener(e -> {
-            gui.showMainMenu();
-            dispose();
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gui.showMainMenu();
+                dispose();
+            }
         });
         buttonPanel.add(continueButton);
         buttonPanel.add(deleteButton);

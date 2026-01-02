@@ -33,9 +33,17 @@ public class NewGameFrame extends JFrame {
         colorCombo = new JComboBox<>(new String[]{"White", "Black"});
         formPanel.add(colorCombo);
         JButton startButton = new JButton("Start Game");
-        startButton.addActionListener(e -> startGame());
+        startButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                startGame();
+            }
+        });
         JButton backButton = new JButton("Back");
-        backButton.addActionListener(e -> gui.showMainMenu());
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gui.showMainMenu();
+            }
+        });
         formPanel.add(startButton);
         formPanel.add(backButton);
         mainPanel.add(formPanel, BorderLayout.CENTER);

@@ -314,10 +314,13 @@ public class Main {
         return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     }
 
-    private void showMessage(String message, String title) {
+    private void showMessage(final String message, final String title) {
         if (gui != null) {
-            SwingUtilities.invokeLater(() ->
-                    JOptionPane.showMessageDialog(null, message, title, JOptionPane.INFORMATION_MESSAGE));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    JOptionPane.showMessageDialog(null, message, title, JOptionPane.INFORMATION_MESSAGE);
+                }
+            });
         }
     }
 
@@ -327,9 +330,11 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Main app = Main.getInstance();
-            app.launchGUI();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                Main app = Main.getInstance();
+                app.launchGUI();
+            }
         });
     }
 }

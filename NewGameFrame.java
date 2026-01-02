@@ -12,12 +12,10 @@ public class NewGameFrame extends JFrame {
     public NewGameFrame(Main app, ChessGUI gui) {
         this.app = app;
         this.gui = gui;
-
         setTitle("Chess - New Game");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-
         initComponents();
     }
 
@@ -41,7 +39,6 @@ public class NewGameFrame extends JFrame {
         formPanel.add(startButton);
         formPanel.add(backButton);
         mainPanel.add(formPanel, BorderLayout.CENTER);
-        //mainPanel.add(infoLabel, BorderLayout.SOUTH);
         add(mainPanel);
     }
 

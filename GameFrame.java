@@ -185,20 +185,15 @@ public class GameFrame extends JFrame implements GameObserver {
         JPanel panel = new JPanel(new GridLayout(3, 1, 5, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Actions"));
         panel.setBackground(Color.WHITE);
-
         JButton resignButton = createStyledButton("Give Up", false);
         resignButton.addActionListener(e -> resignGame());
-
         JButton saveButton = createStyledButton("Save & Exit", false);
         saveButton.addActionListener(e -> saveAndExit());
-
         JButton menuButton = createStyledButton("Main Menu", false);
         menuButton.addActionListener(e -> returnToMenu());
-
         panel.add(resignButton);
         panel.add(saveButton);
         panel.add(menuButton);
-
         return panel;
     }
 
@@ -211,8 +206,6 @@ public class GameFrame extends JFrame implements GameObserver {
         button.setBorderPainted(false);
         button.setOpaque(true);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // Hover effect
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(new Color(56, 142, 60));
@@ -235,9 +228,7 @@ public class GameFrame extends JFrame implements GameObserver {
         Position position = new Position(x, y);
         Player currentPlayer = game.getCurrentPlayer();
         Board board = game.getBoard();
-
         if (selectedPosition == null) {
-            // SELECTARE PIESĂ
             Piece piece = board.getPieceAt(position);
             if (piece != null && piece.getColor() == currentPlayer.getColor()) {
                 selectedPosition = position;
@@ -249,56 +240,39 @@ public class GameFrame extends JFrame implements GameObserver {
                 gameStatusLabel.setText("Not your piece! Select your own piece.");
             }
         } else {
-            // MUTARE PIESĂ
             if (highlightedMoves != null && highlightedMoves.contains(position)) {
                 try {
                     Piece movingPiece = board.getPieceAt(selectedPosition);
                     Piece targetPiece = board.getPieceAt(position);
                     boolean isCapture = (targetPiece != null && movingPiece != null &&
                             targetPiece.getColor() != movingPiece.getColor());
-
-                    // FACEM MUTAREA
                     currentPlayer.makeMove(selectedPosition, position, board, gui);
-
-                    // ADAUGĂ MUTAREA ÎN JOC - CRITIC pentru piese capturate
                     game.addMove(currentPlayer, selectedPosition, position);
-
-                    // ADAUGĂ ÎN ISTORIC
                     addMoveToHistory(currentPlayer, selectedPosition, position, isCapture, targetPiece);
-
-                    // SALVEAZĂ JOCUL după fiecare mutare (pentru auto-save)
                     app.saveGame(game);
-
                     checkGameState();
                     game.switchPlayer();
-
                     if (game.isComputerTurn()) {
                         gameStatusLabel.setText("Computer thinking...");
                         startComputerMove();
                     } else {
                         updateDisplay();
                     }
-
                 } catch (InvalidMoveException e) {
                     gameStatusLabel.setText("Invalid move: " + e.getMessage());
                 }
             } else {
-                // MUTARE INVALIDĂ - VERIFICĂ MOTIVUL
                 Piece selectedPiece = board.getPieceAt(selectedPosition);
                 boolean isInCheck = board.isInCheck(currentPlayer.getColor());
-
                 if (selectedPiece != null) {
                     List<Position> allPossibleMoves = selectedPiece.getPossibleMoves(board);
-
                     if (allPossibleMoves.contains(position)) {
-                        // Mutarea e posibilă dar ilegală datorită șahului
                         if (isInCheck) {
                             gameStatusLabel.setText("CHECK! This move doesn't protect your king!");
                         } else {
                             gameStatusLabel.setText("This move leaves your king in check!");
                         }
                     } else {
-                        // Mutare complet invalidă
                         if (isInCheck) {
                             gameStatusLabel.setText("CHECK! You must protect your king!");
                         } else {
@@ -307,7 +281,6 @@ public class GameFrame extends JFrame implements GameObserver {
                     }
                 }
             }
-
             selectedPosition = null;
             highlightedMoves = null;
             clearHighlights();
@@ -335,8 +308,6 @@ public class GameFrame extends JFrame implements GameObserver {
             return;
         }
         Board board = game.getBoard();
-
-        // 1. Listă toate piesele computerului
         List<Position> computerPieces = new ArrayList<>();
         for (char x = 'A'; x <= 'H'; x++) {
             for (int y = 1; y <= 8; y++) {
@@ -347,28 +318,20 @@ public class GameFrame extends JFrame implements GameObserver {
                 }
             }
         }
-
         if (computerPieces.isEmpty()) {
             gameStatusLabel.setText("Computer has no pieces!");
             return;
         }
-
         Random rand = new Random();
         boolean moveMade = false;
-
-        // 2. Încearcă capturi valoroase
         for (int attempt = 0; attempt < 50 && !moveMade; attempt++) {
             Position from = computerPieces.get(rand.nextInt(computerPieces.size()));
             Piece piece = board.getPieceAt(from);
             if (piece == null) continue;
-
             List<Position> validMoves = board.getValidMovesForPiece(from);
             if (validMoves.isEmpty()) continue;
-
-            // Sortează mutările
             List<Position> captureMoves = new ArrayList<>();
             List<Position> safeMoves = new ArrayList<>();
-
             for (Position to : validMoves) {
                 Piece target = board.getPieceAt(to);
                 if (target != null && target.getColor() != piece.getColor()) {
@@ -380,8 +343,6 @@ public class GameFrame extends JFrame implements GameObserver {
                     safeMoves.add(to);
                 }
             }
-
-            // Alege mutarea
             Position to = null;
             if (!captureMoves.isEmpty()) {
                 to = captureMoves.get(rand.nextInt(captureMoves.size()));
@@ -390,71 +351,51 @@ public class GameFrame extends JFrame implements GameObserver {
             } else if (!validMoves.isEmpty()) {
                 to = validMoves.get(rand.nextInt(validMoves.size()));
             }
-
             if (to != null) {
                 try {
                     Piece targetPiece = board.getPieceAt(to);
                     boolean isCapture = (targetPiece != null && targetPiece.getColor() != piece.getColor());
-
                     computer.makeMove(from, to, board, gui);
                     game.addMove(computer, from, to);
                     addMoveToHistory(computer, from, to, isCapture, targetPiece);
-
-                    // SALVEAZĂ după mutarea computerului
                     app.saveGame(game);
-
                     moveMade = true;
-
                     String moveDesc = from + "-" + to;
                     if (isCapture) {
                         moveDesc += " (captures " + getPieceName(targetPiece.getType()) + ")";
                     }
                     gameStatusLabel.setText("Computer moved: " + moveDesc);
-
                     checkGameState();
                     game.switchPlayer();
                     updateDisplay();
-
                 } catch (InvalidMoveException e) {
-                    // Încearcă altă mutare
                 }
             }
         }
-
-        // 3. Fallback la mutare aleatoare
         if (!moveMade) {
             for (int attempt = 0; attempt < 100 && !moveMade; attempt++) {
                 Position from = computerPieces.get(rand.nextInt(computerPieces.size()));
                 Piece piece = board.getPieceAt(from);
                 if (piece == null) continue;
-
                 List<Position> validMoves = board.getValidMovesForPiece(from);
                 if (validMoves.isEmpty()) continue;
-
                 Position to = validMoves.get(rand.nextInt(validMoves.size()));
                 Piece targetPiece = board.getPieceAt(to);
                 boolean isCapture = (targetPiece != null && targetPiece.getColor() != piece.getColor());
-
                 try {
                     computer.makeMove(from, to, board, gui);
                     game.addMove(computer, from, to);
                     addMoveToHistory(computer, from, to, isCapture, targetPiece);
-
-                    // SALVEAZĂ
                     app.saveGame(game);
-
                     moveMade = true;
                     gameStatusLabel.setText("Computer moved: " + from + "-" + to);
                     checkGameState();
                     game.switchPlayer();
                     updateDisplay();
-
                 } catch (InvalidMoveException e) {
-                    // Încearcă altă mutare
                 }
             }
         }
-
         if (!moveMade) {
             gameStatusLabel.setText("Computer cannot move - stalemate?");
             checkGameState();
@@ -545,23 +486,19 @@ public class GameFrame extends JFrame implements GameObserver {
     private void highlightSquares() {
         Board board = game.getBoard();
         Piece selectedPiece = (selectedPosition != null) ? board.getPieceAt(selectedPosition) : null;
-
         boolean inCheck = false;
         if (game.getCurrentPlayer() != null) {
             inCheck = board.isInCheck(game.getCurrentPlayer().getColor());
         }
-
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 char x = (char) ('A' + col);
                 int y = 8 - row;
                 Position pos = new Position(x, y);
-
                 if (selectedPosition != null && pos.equals(selectedPosition)) {
                     squares[row][col].setBackground(SELECTED_COLOR);
                 } else if (highlightedMoves != null && highlightedMoves.contains(pos)) {
                     Piece targetPiece = board.getPieceAt(pos);
-
                     if (targetPiece != null && selectedPiece != null &&
                             targetPiece.getColor() != selectedPiece.getColor()) {
                         squares[row][col].setBackground(CAPTURE_COLOR);
@@ -621,11 +558,9 @@ public class GameFrame extends JFrame implements GameObserver {
         currentPlayerLabel.setText("Turn: " + currentPlayer.getName());
         updateCapturedPieces();
         scoreLabel.setText(game.getPlayer1().getPoints() + " - " + game.getPlayer2().getPoints());
-
         if (!gameStatusLabel.getText().contains("CHECK") &&
                 !gameStatusLabel.getText().contains("CHECKMATE") &&
                 !gameStatusLabel.getText().contains("STALEMATE")) {
-
             Board board = game.getBoard();
             if (board.isInCheck(currentPlayer.getColor())) {
                 gameStatusLabel.setText("CHECK! " + currentPlayer.getName() + "'s king is under attack!");
@@ -636,21 +571,16 @@ public class GameFrame extends JFrame implements GameObserver {
     }
 
     private void updateCapturedPieces() {
-        // FORȚEAZĂ inițializarea pieselor capturate
         game.ensureCapturedPiecesInitialized();
-
         Player whitePlayer = (game.getPlayer1().getColor() == Colors.WHITE) ?
                 game.getPlayer1() : game.getPlayer2();
         Player blackPlayer = (whitePlayer == game.getPlayer1()) ?
                 game.getPlayer2() : game.getPlayer1();
-
-        // VERIFICĂ NULL
         if (whitePlayer == null || blackPlayer == null) {
             capturedWhiteLabel.setText("None");
             capturedBlackLabel.setText("None");
             return;
         }
-
         String whiteCapturedStr = blackPlayer.getCapturedPiecesString();
         String blackCapturedStr = whitePlayer.getCapturedPiecesString();
         capturedWhiteLabel.setText(whiteCapturedStr);
@@ -676,7 +606,6 @@ public class GameFrame extends JFrame implements GameObserver {
                 "Are you sure you want to resign? You will lose 150 points.",
                 "Confirm Resignation", JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
-
         if (confirm == JOptionPane.YES_OPTION) {
             app.resignGame(game);
             gui.showGameOverScreen(game, "Resignation", -150);
@@ -688,9 +617,7 @@ public class GameFrame extends JFrame implements GameObserver {
                 "Save game and return to main menu?",
                 "Save Game", JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE);
-
         if (confirm == JOptionPane.YES_OPTION) {
-            // FORȚEAZĂ SALVARE înainte de ieșire
             game.ensureCapturedPiecesInitialized();
             app.saveGame(game);
             gui.showMainMenu();
@@ -713,7 +640,6 @@ public class GameFrame extends JFrame implements GameObserver {
                 "Confirm Exit", JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE);
         if (confirm == JOptionPane.YES_OPTION) {
-            // SALVEAZĂ înainte de ieșire
             game.ensureCapturedPiecesInitialized();
             app.saveGame(game);
             dispose();

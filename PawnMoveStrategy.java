@@ -17,8 +17,6 @@ public class PawnMoveStrategy implements MoveStrategy {
             Position forwardPos = new Position((char)(x + 'A'), forwardY + 1);
             if (board.getPieceAt(forwardPos) == null) {
                 moves.add(forwardPos);
-
-                // Prima mutare - două pătrate
                 if (isFirstMove) {
                     int doubleForwardY = y + 2 * direction;
                     if (doubleForwardY >= 0 && doubleForwardY < 8) {
@@ -70,7 +68,6 @@ public class PawnMoveStrategy implements MoveStrategy {
                 }
             }
         }
-
         return false;
     }
 

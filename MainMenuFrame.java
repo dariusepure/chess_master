@@ -9,12 +9,10 @@ public class MainMenuFrame extends JFrame {
     public MainMenuFrame(Main app, ChessGUI gui) {
         this.app = app;
         this.gui = gui;
-
         setTitle("Chess Master");
         setSize(600, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
         initComponents();
     }
 
@@ -24,25 +22,19 @@ public class MainMenuFrame extends JFrame {
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(76, 175, 80));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
         JLabel welcomeLabel = new JLabel("Welcome to Chess Master", SwingConstants.CENTER);
         welcomeLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         welcomeLabel.setForeground(Color.WHITE);
-
         JLabel userLabel = new JLabel("User: " + app.getCurrentUser().getEmail(), SwingConstants.RIGHT);
         userLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         userLabel.setForeground(Color.YELLOW);
-
         headerPanel.add(welcomeLabel, BorderLayout.CENTER);
         headerPanel.add(userLabel, BorderLayout.EAST);
-
         JPanel buttonsPanel = new JPanel(new GridLayout(5, 1, 15, 15));
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
         buttonsPanel.setBackground(new Color(240, 240, 240));
-
         JButton newGameButton = createStyledButton("New Game", true);
         newGameButton.addActionListener(e -> gui.showNewGameScreen());
-
         JButton continueGameButton = createStyledButton("Continue Game", true);
         continueGameButton.addActionListener(e -> {
             if (app.getCurrentUser().getActiveGames().isEmpty()) {
@@ -55,39 +47,27 @@ public class MainMenuFrame extends JFrame {
                 dispose();
             }
         });
-
-        JButton statsButton = createStyledButton("Statistics", true);
-        statsButton.addActionListener(e -> showStatistics());
-
         JButton logoutButton = createStyledButton("Logout", true);
         logoutButton.addActionListener(e -> {
             app.logout();
             gui.showLoginScreen();
             dispose();
         });
-
         JButton exitButton = createStyledButton("Exit", true);
         exitButton.addActionListener(e -> gui.exit());
-
         buttonsPanel.add(newGameButton);
         buttonsPanel.add(continueGameButton);
-        buttonsPanel.add(statsButton);
         buttonsPanel.add(logoutButton);
         buttonsPanel.add(exitButton);
-
         JPanel footerPanel = new JPanel(new BorderLayout());
         footerPanel.setBackground(new Color(245, 245, 245));
         footerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
         JLabel pointsLabel = new JLabel("Total Points: " + app.getCurrentUser().getPoints());
         pointsLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-
         JLabel gamesLabel = new JLabel("Active Games: " + app.getCurrentUser().getActiveGames().size());
         gamesLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-
         footerPanel.add(pointsLabel, BorderLayout.WEST);
         footerPanel.add(gamesLabel, BorderLayout.EAST);
-
         add(headerPanel, BorderLayout.NORTH);
         add(buttonsPanel, BorderLayout.CENTER);
         add(footerPanel, BorderLayout.SOUTH);
@@ -102,8 +82,6 @@ public class MainMenuFrame extends JFrame {
         button.setBorderPainted(false);
         button.setOpaque(true);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // Hover effect
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(new Color(56, 142, 60));
@@ -112,17 +90,6 @@ public class MainMenuFrame extends JFrame {
                 button.setBackground(new Color(76, 175, 80));
             }
         });
-
         return button;
-    }
-
-    private void showStatistics() {
-        User user = app.getCurrentUser();
-        String message = "User Statistics:\n\n" +
-                "Email: " + user.getEmail() + "\n" +
-                "Total Points: " + user.getPoints() + "\n" +
-                "Active Games: " + user.getActiveGames().size() + "\n" +
-                "Games History: " + user.getGameIds().size() + " games played";
-        JOptionPane.showMessageDialog(this, message, "Statistics", JOptionPane.INFORMATION_MESSAGE);
     }
 }

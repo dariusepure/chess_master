@@ -8,7 +8,6 @@ public class Board {
 
     public void initialize() {
         pieces.clear();
-
         pieces.add(new ChessPair<>(new Position('A', 1), PieceFactory.createPiece('R', Colors.WHITE, new Position('A', 1))));
         pieces.add(new ChessPair<>(new Position('B', 1), PieceFactory.createPiece('N', Colors.WHITE, new Position('B', 1))));
         pieces.add(new ChessPair<>(new Position('C', 1), PieceFactory.createPiece('B', Colors.WHITE, new Position('C', 1))));
@@ -17,12 +16,10 @@ public class Board {
         pieces.add(new ChessPair<>(new Position('F', 1), PieceFactory.createPiece('B', Colors.WHITE, new Position('F', 1))));
         pieces.add(new ChessPair<>(new Position('G', 1), PieceFactory.createPiece('N', Colors.WHITE, new Position('G', 1))));
         pieces.add(new ChessPair<>(new Position('H', 1), PieceFactory.createPiece('R', Colors.WHITE, new Position('H', 1))));
-
         for (char c = 'A'; c <= 'H'; c++) {
             pieces.add(new ChessPair<>(new Position(c, 2), PieceFactory.createPiece('P', Colors.WHITE, new Position(c, 2))));
             pieces.add(new ChessPair<>(new Position(c, 7), PieceFactory.createPiece('P', Colors.BLACK, new Position(c, 7))));
         }
-
         pieces.add(new ChessPair<>(new Position('A', 8), PieceFactory.createPiece('R', Colors.BLACK, new Position('A', 8))));
         pieces.add(new ChessPair<>(new Position('B', 8), PieceFactory.createPiece('N', Colors.BLACK, new Position('B', 8))));
         pieces.add(new ChessPair<>(new Position('C', 8), PieceFactory.createPiece('B', Colors.BLACK, new Position('C', 8))));
@@ -81,12 +78,9 @@ public class Board {
             boolean isWhite = pawn.getColor() == Colors.WHITE;
 
             if ((isWhite && row == 8) || (!isWhite && row == 1)) {
-                // VERIFICĂ DACĂ E JUCĂTORUL OM SAU COMPUTER
                 if (movingPlayer != null && "Computer".equals(movingPlayer.getName())) {
-                    // COMPUTER - promovează automat în Regină
                     promotePawnAutomatically(to, pawn);
                 } else {
-                    // OM - arată dialog
                     promotePawnWithDialog(to, pawn, gui);
                 }
             }
@@ -96,16 +90,8 @@ public class Board {
     private void promotePawnAutomatically(Position to, Pawn pawn) {
         ChessPair<Position, Piece> pawnPair = findPairByPositionAndPiece(to, pawn);
         if (pawnPair == null) return;
-
         pieces.remove(pawnPair);
-
-        // Computerul întotdeauna alege Regina
-        Piece promotedPiece = PieceFactory.createPiece(
-                'Q',  // Întotdeauna Regină pentru computer
-                pawn.getColor(),
-                to
-        );
-
+        Piece promotedPiece = PieceFactory.createPiece('Q', pawn.getColor(), to);
         pieces.add(new ChessPair<>(to, promotedPiece));
         System.out.println("Computer pawn automatically promoted to Queen at " + to);
     }
@@ -113,8 +99,6 @@ public class Board {
     private void promotePawnWithDialog(Position to, Pawn pawn, ChessGUI gui) {
         ChessPair<Position, Piece> pawnPair = findPairByPositionAndPiece(to, pawn);
         if (pawnPair == null) return;
-
-        // Folosește SwingUtilities pentru a rula pe thread-ul UI
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -129,16 +113,14 @@ public class Board {
                         options,
                         options[0]
                 );
-
-                char pieceChar = 'Q'; // default Queen
+                char pieceChar = 'Q';
                 switch (choice) {
-                    case 0: pieceChar = 'Q'; break; // Queen
-                    case 1: pieceChar = 'R'; break; // Rook
-                    case 2: pieceChar = 'B'; break; // Bishop
-                    case 3: pieceChar = 'N'; break; // Knight
+                    case 0: pieceChar = 'Q'; break;
+                    case 1: pieceChar = 'R'; break;
+                    case 2: pieceChar = 'B'; break;
+                    case 3: pieceChar = 'N'; break;
                     default: pieceChar = 'Q'; break;
                 }
-
                 pieces.remove(pawnPair);
                 Piece promotedPiece = PieceFactory.createPiece(
                         pieceChar,
@@ -155,47 +137,35 @@ public class Board {
     public boolean isValidMove(Position from, Position to) {
         if (to.getX() < 'A' || to.getX() > 'H' || to.getY() < 1 || to.getY() > 8) return false;
         if (from.equals(to)) return false;
-
         Piece piece = getPieceAt(from);
         if (piece == null) return false;
-
         Piece target = getPieceAt(to);
         if (target != null && target.getColor() == piece.getColor()) return false;
-
         List<Position> possibleMoves = piece.getPossibleMoves(this);
         if (!possibleMoves.contains(to)) return false;
-
         return !wouldLeaveKingInCheck(from, to, piece.getColor());
     }
 
     private boolean wouldLeaveKingInCheck(Position from, Position to, Colors playerColor) {
         Piece movingPiece = getPieceAt(from);
         if (movingPiece == null) return false;
-
         Piece targetPiece = getPieceAt(to);
-
         ChessPair<Position, Piece> fromPair = findPairByPositionAndPiece(from, movingPiece);
         if (fromPair != null) pieces.remove(fromPair);
-
         if (targetPiece != null) {
             ChessPair<Position, Piece> toPair = findPairByPositionAndPiece(to, targetPiece);
             if (toPair != null) pieces.remove(toPair);
         }
-
         movingPiece.setPosition(to);
         pieces.add(new ChessPair<>(to, movingPiece));
-
         Position kingPos = findKingPosition(playerColor);
         boolean inCheck = kingPos != null && isPositionAttacked(kingPos, playerColor);
-
         pieces.remove(new ChessPair<>(to, movingPiece));
         movingPiece.setPosition(from);
         pieces.add(new ChessPair<>(from, movingPiece));
-
         if (targetPiece != null) {
             pieces.add(new ChessPair<>(to, targetPiece));
         }
-
         return inCheck;
     }
 

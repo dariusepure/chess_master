@@ -12,12 +12,9 @@ public class RookMoveStrategy implements MoveStrategy {
             for (int step = 1; step <= 7; step++) {
                 int newX = x + directions[i][0] * step;
                 int newY = y + directions[i][1] * step;
-
                 if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-
                 Position newPos = new Position((char)(newX + 'A'), newY + 1);
                 Piece target = board.getPieceAt(newPos);
-
                 if (target == null) {
                     moves.add(newPos);
                 } else {

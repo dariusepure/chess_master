@@ -18,8 +18,6 @@ public class Player {
         this("Unknown", Colors.WHITE);
     }
 
-    // CONSTRUCTOR NOU pentru încărcare din salvare
-
     public Player(String name, Colors color, int points, List<String> capturedData) {
         this.name = (name == null || name.trim().isEmpty()) ? "Unknown" : name.trim();
         this.color = (color == null) ? Colors.WHITE : color;
@@ -114,13 +112,11 @@ public class Player {
                         }
                     }
                 } catch (Exception e) {
-                    // Ignore invalid entries
                 }
             }
         }
     }
 
-    // METODĂ CRITICĂ: Forțează inițializarea pieselor capturate
     public void ensureCapturedPiecesInitialized() {
         if (capturedPieces == null) {
             capturedPieces = new ArrayList<>();
@@ -153,7 +149,6 @@ public class Player {
         }
     }
 
-    // GETTERS și SETTERS
     public String getName() {
         return name;
     }
@@ -188,7 +183,6 @@ public class Player {
         this.points = points;
     }
 
-    // SETTER pentru capturedPieces (pentru încărcare directă)
     public void setCapturedPieces(List<Piece> pieces) {
         this.capturedPieces = new ArrayList<>();
         this.points = 0;

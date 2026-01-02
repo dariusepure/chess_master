@@ -18,6 +18,16 @@ public class Player {
         this("Unknown", Colors.WHITE);
     }
 
+    // CONSTRUCTOR NOU pentru încărcare din salvare
+
+    public Player(String name, Colors color, int points, List<String> capturedData) {
+        this.name = (name == null || name.trim().isEmpty()) ? "Unknown" : name.trim();
+        this.color = (color == null) ? Colors.WHITE : color;
+        this.points = points;
+        this.capturedPieces = new ArrayList<>();
+        loadCapturedPiecesFromJson(capturedData);
+    }
+
     public void makeMove(Position from, Position to, Board board, ChessGUI gui) throws InvalidMoveException {
         if (board == null) {
             throw new InvalidMoveException("Board is null");
@@ -36,7 +46,6 @@ public class Player {
         }
         board.movePiece(from, to, this, gui);
     }
-
 
     public void addCapturedPiece(Piece originalPiece) {
         if (originalPiece == null) {
@@ -63,7 +72,6 @@ public class Player {
 
     private void updatePoints() {
         this.points = 0;
-
         for (Piece piece : capturedPieces) {
             this.points += getPieceValue(piece.getType());
         }
@@ -106,12 +114,22 @@ public class Player {
                         }
                     }
                 } catch (Exception e) {
+                    // Ignore invalid entries
                 }
             }
         }
     }
 
+    // METODĂ CRITICĂ: Forțează inițializarea pieselor capturate
+    public void ensureCapturedPiecesInitialized() {
+        if (capturedPieces == null) {
+            capturedPieces = new ArrayList<>();
+            points = 0;
+        }
+    }
+
     public String getCapturedPiecesString() {
+        ensureCapturedPiecesInitialized();
         if (capturedPieces.isEmpty()) {
             return "None";
         }
@@ -135,16 +153,56 @@ public class Player {
         }
     }
 
-    public String getName() { return name; }
-    public Colors getColor() { return color; }
-    public int getPoints() { return points; }
-    public List<Piece> getCapturedPieces() { return new ArrayList<>(capturedPieces); }
-    public int getCapturedCount() { return capturedPieces.size(); }
-    public void setName(String name) { this.name = name; }
-    public void setColor(Colors color) { this.color = color; }
-    public void setPoints(int points) { this.points = points; }
+    // GETTERS și SETTERS
+    public String getName() {
+        return name;
+    }
+
+    public Colors getColor() {
+        return color;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public List<Piece> getCapturedPieces() {
+        ensureCapturedPiecesInitialized();
+        return new ArrayList<>(capturedPieces);
+    }
+
+    public int getCapturedCount() {
+        ensureCapturedPiecesInitialized();
+        return capturedPieces.size();
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setColor(Colors color) {
+        this.color = color;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    // SETTER pentru capturedPieces (pentru încărcare directă)
+    public void setCapturedPieces(List<Piece> pieces) {
+        this.capturedPieces = new ArrayList<>();
+        this.points = 0;
+        if (pieces != null) {
+            for (Piece piece : pieces) {
+                Piece copy = createPieceCopy(piece);
+                this.capturedPieces.add(copy);
+                this.points += getPieceValue(piece.getType());
+            }
+        }
+    }
 
     public void clearCapturedPieces() {
+        ensureCapturedPiecesInitialized();
         capturedPieces.clear();
         points = 0;
     }

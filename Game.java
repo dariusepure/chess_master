@@ -36,6 +36,35 @@ public class Game {
         this.currentPlayerColor = Colors.WHITE.toString();
     }
 
+    // ========== METODE GETTER PENTRU PLAYERS ==========
+
+    public Player getPlayer1() {
+        if (player1 != null) {
+            player1.ensureCapturedPiecesInitialized();
+        }
+        return player1;
+    }
+
+    public Player getPlayer2() {
+        if (player2 != null) {
+            player2.ensureCapturedPiecesInitialized();
+        }
+        return player2;
+    }
+
+    // ========== METODA CRITICĂ PENTRU CAPTURED PIECES ==========
+
+    public void ensureCapturedPiecesInitialized() {
+        if (player1 != null) {
+            player1.ensureCapturedPiecesInitialized();
+        }
+        if (player2 != null) {
+            player2.ensureCapturedPiecesInitialized();
+        }
+    }
+
+    // ========== RESTUL METODELOR ORIGINALE ==========
+
     public void setId(long id) {
         this.id = (int) id;
     }
@@ -60,6 +89,7 @@ public class Game {
                 }
             }
         }
+        ensureCapturedPiecesInitialized();
     }
 
     public void setCurrentPlayerColor(String color) {
@@ -110,10 +140,12 @@ public class Game {
             player2.clearCapturedPieces();
             player2.setPoints(0);
         }
+        ensureCapturedPiecesInitialized();
         notifyObservers("Game started");
     }
 
     public void resume() {
+        ensureCapturedPiecesInitialized();
         notifyObservers("Game resumed");
     }
 
@@ -160,6 +192,8 @@ public class Game {
         if (captured != null) {
             notifyPieceCaptured(captured);
         }
+
+        ensureCapturedPiecesInitialized();
     }
 
     private void updatePawnFirstMoveFlags() {
@@ -206,18 +240,11 @@ public class Game {
         }
     }
 
-    public Player getPlayer1() {
-        return player1;
-    }
-
-    public Player getPlayer2() {
-        return player2;
-    }
-
     public Player getCurrentPlayer() {
         if (player1 == null || player2 == null) {
             return null;
         }
+        ensureCapturedPiecesInitialized();
         return (currentPlayerIndex == 0) ? player1 : player2;
     }
 
@@ -225,6 +252,7 @@ public class Game {
         if (player1 == null || player2 == null) {
             return null;
         }
+        ensureCapturedPiecesInitialized();
         return (currentPlayerIndex == 0) ? player2 : player1;
     }
 
@@ -249,6 +277,7 @@ public class Game {
         if (player != null && player.getColor() == null) {
             player.setColor(Colors.WHITE);
         }
+        ensureCapturedPiecesInitialized();
     }
 
     public void setPlayer2(Player player) {
@@ -256,6 +285,7 @@ public class Game {
         if (player != null && player.getColor() == null) {
             player.setColor(Colors.BLACK);
         }
+        ensureCapturedPiecesInitialized();
     }
 
     public int getCurrentPlayerIndex() {
@@ -268,6 +298,7 @@ public class Game {
     }
 
     public Player getHumanPlayer() {
+        ensureCapturedPiecesInitialized();
         if (player1 != null && !"Computer".equals(player1.getName())) {
             return player1;
         } else if (player2 != null && !"Computer".equals(player2.getName())) {
@@ -277,6 +308,7 @@ public class Game {
     }
 
     public boolean isValidGame() {
+        ensureCapturedPiecesInitialized();
         return player1 != null && player2 != null && board != null;
     }
 }

@@ -39,12 +39,14 @@ public class Main {
 
     private void loadData() {
         try {
+            // Load users
             if (Files.exists(Paths.get(ACCOUNTS_FILE))) {
                 List<User> loadedUsers = JsonReaderUtil.readUsers(Paths.get(ACCOUNTS_FILE));
                 users.clear();
                 users.addAll(loadedUsers);
             }
 
+            // Load games
             if (Files.exists(Paths.get(GAMES_FILE))) {
                 Map<Long, Game> gamesMap = JsonReaderUtil.readGamesAsMap(Paths.get(GAMES_FILE));
                 allGames.clear();
@@ -53,17 +55,17 @@ public class Main {
                     int gameId = entry.getKey().intValue();
                     Game game = entry.getValue();
 
-
                     if (game != null && game.getPlayer1() != null && game.getPlayer2() != null) {
+                        // FORȚEAZĂ inițializarea pieselor capturate la încărcare
+                        game.ensureCapturedPiecesInitialized();
                         allGames.put(gameId, game);
                         if (gameId >= nextGameId) {
                             nextGameId = gameId + 1;
                         }
-                    } else {
-                        System.out.println("Skipping invalid game with null players: ID=" + gameId);
                     }
                 }
 
+                // Link games to users
                 for (User user : users) {
                     List<Game> userGames = new ArrayList<>();
                     for (Integer gameId : user.getGameIds()) {
@@ -76,18 +78,16 @@ public class Main {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Load error: " + e.getMessage());
+            // Silent fail on load
         }
     }
 
     public void saveData() {
         try {
-
             saveValidGames();
             saveUsersManually();
-
         } catch (Exception e) {
-            System.out.println("Save error: " + e.getMessage());
+            // Silent fail on save
         }
     }
 
@@ -98,25 +98,41 @@ public class Main {
             for (Map.Entry<Integer, Game> entry : allGames.entrySet()) {
                 Game game = entry.getValue();
 
-
                 if (game == null || game.getPlayer1() == null || game.getPlayer2() == null) {
-                    System.out.println("Skipping invalid game during save: " +
-                            (game != null ? "ID=" + game.getId() : "NULL"));
                     continue;
                 }
 
                 org.json.simple.JSONObject gameObj = new org.json.simple.JSONObject();
                 gameObj.put("id", game.getId());
 
+                // Save players with captured pieces
                 org.json.simple.JSONArray playersArray = new org.json.simple.JSONArray();
 
+                // Player 1
                 org.json.simple.JSONObject player1Obj = new org.json.simple.JSONObject();
                 player1Obj.put("email", game.getPlayer1().getName());
                 player1Obj.put("color", game.getPlayer1().getColor().toString());
+                player1Obj.put("points", game.getPlayer1().getPoints());
 
+                // Save captured pieces for player 1
+                org.json.simple.JSONArray captured1Array = new org.json.simple.JSONArray();
+                for (String captured : game.getPlayer1().getCapturedPiecesForJson()) {
+                    captured1Array.add(captured);
+                }
+                player1Obj.put("captured", captured1Array);
+
+                // Player 2
                 org.json.simple.JSONObject player2Obj = new org.json.simple.JSONObject();
                 player2Obj.put("email", game.getPlayer2().getName());
                 player2Obj.put("color", game.getPlayer2().getColor().toString());
+                player2Obj.put("points", game.getPlayer2().getPoints());
+
+                // Save captured pieces for player 2
+                org.json.simple.JSONArray captured2Array = new org.json.simple.JSONArray();
+                for (String captured : game.getPlayer2().getCapturedPiecesForJson()) {
+                    captured2Array.add(captured);
+                }
+                player2Obj.put("captured", captured2Array);
 
                 playersArray.add(player1Obj);
                 playersArray.add(player2Obj);
@@ -124,6 +140,7 @@ public class Main {
 
                 gameObj.put("currentPlayerColor", game.getCurrentPlayerColor());
 
+                // Save board
                 org.json.simple.JSONArray boardArray = new org.json.simple.JSONArray();
                 if (game.getBoard() != null) {
                     for (ChessPair<Position, Piece> pair : game.getBoard().getAllPieces()) {
@@ -136,6 +153,7 @@ public class Main {
                 }
                 gameObj.put("board", boardArray);
 
+                // Save moves
                 org.json.simple.JSONArray movesArray = new org.json.simple.JSONArray();
                 for (Move move : game.getHistory()) {
                     org.json.simple.JSONObject moveObj = new org.json.simple.JSONObject();
@@ -162,7 +180,7 @@ public class Main {
                 file.flush();
             }
         } catch (Exception e) {
-            System.out.println("Error saving games: " + e.getMessage());
+            // Silent fail
         }
     }
 
@@ -192,7 +210,7 @@ public class Main {
                 file.flush();
             }
         } catch (Exception e) {
-            System.out.println("Error saving users: " + e.getMessage());
+            // Silent fail
         }
     }
 
@@ -216,24 +234,21 @@ public class Main {
         }
 
         nextGameId++;
-
         saveData();
         return game;
     }
 
     public void saveGame(Game game) {
-
         if (game != null && game.getPlayer1() != null && game.getPlayer2() != null) {
+            // Asigură-te că piesele capturate sunt inițializate înainte de salvare
+            game.ensureCapturedPiecesInitialized();
             allGames.put(game.getId(), game);
             saveData();
-        } else {
-            System.out.println("Cannot save invalid game: player1 or player2 is null");
         }
     }
 
     public void resignGame(Game game) {
         if (game == null || game.getPlayer1() == null) {
-            System.out.println("Cannot resign null game or game with null player1");
             return;
         }
 
@@ -248,13 +263,11 @@ public class Main {
         }
 
         allGames.remove(game.getId());
-
         saveData();
     }
 
     public void endGame(Game game, boolean humanWins) {
         if (game == null || game.getPlayer1() == null) {
-            System.out.println("Cannot end null game or game with null player1");
             return;
         }
 
@@ -288,7 +301,6 @@ public class Main {
 
     private Player getHumanPlayer(Game game) {
         if (game.getPlayer1() == null || game.getPlayer2() == null) {
-
             return new Player("DefaultPlayer", Colors.WHITE);
         }
 
@@ -370,12 +382,8 @@ public class Main {
         if (gui != null) {
             SwingUtilities.invokeLater(() ->
                     JOptionPane.showMessageDialog(null, message, title, JOptionPane.INFORMATION_MESSAGE));
-        } else {
-            System.out.println(title + ": " + message);
         }
     }
-
-
 
     public void launchGUI() {
         this.gui = new ChessGUI(this);

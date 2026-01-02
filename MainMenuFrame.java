@@ -40,10 +40,10 @@ public class MainMenuFrame extends JFrame {
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
         buttonsPanel.setBackground(new Color(240, 240, 240));
 
-        JButton newGameButton = createMenuButton("New Game");
+        JButton newGameButton = createStyledButton("New Game", true);
         newGameButton.addActionListener(e -> gui.showNewGameScreen());
 
-        JButton continueGameButton = createMenuButton("Continue Game");
+        JButton continueGameButton = createStyledButton("Continue Game", true);
         continueGameButton.addActionListener(e -> {
             if (app.getCurrentUser().getActiveGames().isEmpty()) {
                 JOptionPane.showMessageDialog(this,
@@ -56,17 +56,17 @@ public class MainMenuFrame extends JFrame {
             }
         });
 
-        JButton statsButton = createMenuButton("Statistics");
+        JButton statsButton = createStyledButton("Statistics", true);
         statsButton.addActionListener(e -> showStatistics());
 
-        JButton logoutButton = createMenuButton("Logout");
+        JButton logoutButton = createStyledButton("Logout", true);
         logoutButton.addActionListener(e -> {
             app.logout();
             gui.showLoginScreen();
             dispose();
         });
 
-        JButton exitButton = createMenuButton("Exit");
+        JButton exitButton = createStyledButton("Exit", true);
         exitButton.addActionListener(e -> gui.exit());
 
         buttonsPanel.add(newGameButton);
@@ -93,14 +93,26 @@ public class MainMenuFrame extends JFrame {
         add(footerPanel, BorderLayout.SOUTH);
     }
 
-    private JButton createMenuButton(String text) {
+    private JButton createStyledButton(String text, boolean largeFont) {
         JButton button = new JButton(text);
-        button.setFont(new Font("SansSerif", Font.BOLD, 16));
+        button.setFont(new Font("Arial", Font.BOLD, largeFont ? 16 : 14));
         button.setBackground(new Color(76, 175, 80));
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(15, 30, 15, 30));
+        button.setBorderPainted(false);
+        button.setOpaque(true);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(56, 142, 60));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(76, 175, 80));
+            }
+        });
+
         return button;
     }
 

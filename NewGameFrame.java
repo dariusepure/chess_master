@@ -41,8 +41,7 @@ public class NewGameFrame extends JFrame {
         formPanel.add(startButton);
         formPanel.add(backButton);
         mainPanel.add(formPanel, BorderLayout.CENTER);
-        JLabel infoLabel = new JLabel("White moves first", SwingConstants.CENTER);
-        mainPanel.add(infoLabel, BorderLayout.SOUTH);
+        //mainPanel.add(infoLabel, BorderLayout.SOUTH);
         add(mainPanel);
     }
 

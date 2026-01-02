@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
+import javax.swing.JOptionPane;
 
 public class Board {
     private TreeSet<ChessPair<Position, Piece>> pieces = new TreeSet<>();
@@ -80,26 +81,75 @@ public class Board {
             boolean isWhite = pawn.getColor() == Colors.WHITE;
 
             if ((isWhite && row == 8) || (!isWhite && row == 1)) {
-                promotePawn(to, pawn, gui);
+                // VERIFICĂ DACĂ E JUCĂTORUL OM SAU COMPUTER
+                if (movingPlayer != null && "Computer".equals(movingPlayer.getName())) {
+                    // COMPUTER - promovează automat în Regină
+                    promotePawnAutomatically(to, pawn);
+                } else {
+                    // OM - arată dialog
+                    promotePawnWithDialog(to, pawn, gui);
+                }
             }
         }
     }
 
-    private void promotePawn(Position to, Pawn pawn, ChessGUI gui) {
+    private void promotePawnAutomatically(Position to, Pawn pawn) {
         ChessPair<Position, Piece> pawnPair = findPairByPositionAndPiece(to, pawn);
         if (pawnPair == null) return;
 
-        char choice = gui.showPromotionDialog();
-
         pieces.remove(pawnPair);
 
+        // Computerul întotdeauna alege Regina
         Piece promotedPiece = PieceFactory.createPiece(
-                choice,
+                'Q',  // Întotdeauna Regină pentru computer
                 pawn.getColor(),
                 to
         );
 
         pieces.add(new ChessPair<>(to, promotedPiece));
+        System.out.println("Computer pawn automatically promoted to Queen at " + to);
+    }
+
+    private void promotePawnWithDialog(Position to, Pawn pawn, ChessGUI gui) {
+        ChessPair<Position, Piece> pawnPair = findPairByPositionAndPiece(to, pawn);
+        if (pawnPair == null) return;
+
+        // Folosește SwingUtilities pentru a rula pe thread-ul UI
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                Object[] options = {"Queen", "Rook", "Bishop", "Knight"};
+                int choice = JOptionPane.showOptionDialog(
+                        null,
+                        "Promote your pawn to:",
+                        "Pawn Promotion",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0]
+                );
+
+                char pieceChar = 'Q'; // default Queen
+                switch (choice) {
+                    case 0: pieceChar = 'Q'; break; // Queen
+                    case 1: pieceChar = 'R'; break; // Rook
+                    case 2: pieceChar = 'B'; break; // Bishop
+                    case 3: pieceChar = 'N'; break; // Knight
+                    default: pieceChar = 'Q'; break;
+                }
+
+                pieces.remove(pawnPair);
+                Piece promotedPiece = PieceFactory.createPiece(
+                        pieceChar,
+                        pawn.getColor(),
+                        to
+                );
+                pieces.add(new ChessPair<>(to, promotedPiece));
+
+
+            }
+        });
     }
 
     public boolean isValidMove(Position from, Position to) {

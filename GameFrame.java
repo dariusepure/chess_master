@@ -24,6 +24,7 @@ public class GameFrame extends JFrame implements GameObserver {
     private final Color SELECTED_COLOR = new Color(144, 238, 144);
     private final Color HIGHLIGHT_COLOR = new Color(255, 255, 153);
     private final Color CAPTURE_COLOR = new Color(255, 100, 100);
+    private final Color CHECK_WARNING_COLOR = new Color(255, 200, 200);
 
     private Timer computerTimer;
 
@@ -31,8 +32,7 @@ public class GameFrame extends JFrame implements GameObserver {
         this.app = app;
         this.game = game;
         this.gui = gui;
-        setTitle("Chess Game #" + game.getId() + " - " +
-                game.getPlayer1().getName() + " vs " + game.getPlayer2().getName());
+        setTitle("Chess Master");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -182,48 +182,66 @@ public class GameFrame extends JFrame implements GameObserver {
     }
 
     private JPanel createActionButtonsPanel() {
-        JPanel panel = new JPanel(new GridLayout(4, 1, 5, 5));
+        JPanel panel = new JPanel(new GridLayout(3, 1, 5, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Actions"));
         panel.setBackground(Color.WHITE);
-        JButton resignButton = createActionButton("Give Up");
+
+        JButton resignButton = createStyledButton("Give Up", false);
         resignButton.addActionListener(e -> resignGame());
-        JButton saveButton = createActionButton("Save & Exit");
+
+        JButton saveButton = createStyledButton("Save & Exit", false);
         saveButton.addActionListener(e -> saveAndExit());
-        JButton menuButton = createActionButton("Main Menu");
+
+        JButton menuButton = createStyledButton("Main Menu", false);
         menuButton.addActionListener(e -> returnToMenu());
+
         panel.add(resignButton);
         panel.add(saveButton);
         panel.add(menuButton);
+
         return panel;
     }
 
-    private JButton createActionButton(String text) {
+    private JButton createStyledButton(String text, boolean largeFont) {
         JButton button = new JButton(text);
-        button.setFont(new Font("SansSerif", Font.BOLD, 14));
+        button.setFont(new Font("Arial", Font.BOLD, largeFont ? 16 : 14));
         button.setBackground(new Color(76, 175, 80));
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+        button.setBorderPainted(false);
+        button.setOpaque(true);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(56, 142, 60));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(76, 175, 80));
+            }
+        });
+
         return button;
     }
 
     private void handleSquareClick(int row, int col) {
         if (game.isComputerTurn()) {
-            JOptionPane.showMessageDialog(this,
-                    "Computer's turn! Please wait...",
-                    "Not Your Turn", JOptionPane.WARNING_MESSAGE);
+            gameStatusLabel.setText("Computer's turn! Please wait...");
             return;
         }
         char x = (char) ('A' + col);
         int y = 8 - row;
         Position position = new Position(x, y);
         Player currentPlayer = game.getCurrentPlayer();
+        Board board = game.getBoard();
+
         if (selectedPosition == null) {
-            Piece piece = game.getBoard().getPieceAt(position);
+            // SELECTARE PIESĂ
+            Piece piece = board.getPieceAt(position);
             if (piece != null && piece.getColor() == currentPlayer.getColor()) {
                 selectedPosition = position;
-                highlightedMoves = game.getBoard().getValidMovesForPiece(position);
+                highlightedMoves = board.getValidMovesForPiece(position);
                 highlightSquares();
 
                 gameStatusLabel.setText("Selected: " + getPieceName(piece.getType()) + " at " + position);
@@ -231,17 +249,21 @@ public class GameFrame extends JFrame implements GameObserver {
                 gameStatusLabel.setText("Not your piece! Select your own piece.");
             }
         } else {
+            // MUTARE PIESĂ
             if (highlightedMoves != null && highlightedMoves.contains(position)) {
                 try {
-                    Piece movingPiece = game.getBoard().getPieceAt(selectedPosition);
-                    Piece targetPiece = game.getBoard().getPieceAt(position);
+                    Piece movingPiece = board.getPieceAt(selectedPosition);
+                    Piece targetPiece = board.getPieceAt(position);
                     boolean isCapture = (targetPiece != null && movingPiece != null &&
                             targetPiece.getColor() != movingPiece.getColor());
-                    currentPlayer.makeMove(selectedPosition, position, game.getBoard(),gui);
+
+                    currentPlayer.makeMove(selectedPosition, position, board, gui);
                     game.addMove(currentPlayer, selectedPosition, position);
                     addMoveToHistory(currentPlayer, selectedPosition, position, isCapture, targetPiece);
+
                     checkGameState();
                     game.switchPlayer();
+
                     if (game.isComputerTurn()) {
                         gameStatusLabel.setText("Computer thinking...");
                         startComputerMove();
@@ -250,12 +272,32 @@ public class GameFrame extends JFrame implements GameObserver {
                     }
 
                 } catch (InvalidMoveException e) {
-                    JOptionPane.showMessageDialog(this,
-                            "Invalid move: " + e.getMessage(),
-                            "Error", JOptionPane.ERROR_MESSAGE);
+                    gameStatusLabel.setText("Invalid move: " + e.getMessage());
                 }
             } else {
-                gameStatusLabel.setText("Invalid move target!");
+                // MUTARE INVALIDĂ - VERIFICĂ MOTIVUL
+                Piece selectedPiece = board.getPieceAt(selectedPosition);
+                boolean isInCheck = board.isInCheck(currentPlayer.getColor());
+
+                if (selectedPiece != null) {
+                    List<Position> allPossibleMoves = selectedPiece.getPossibleMoves(board);
+
+                    if (allPossibleMoves.contains(position)) {
+                        // Mutarea e posibilă dar ilegală datorită șahului
+                        if (isInCheck) {
+                            gameStatusLabel.setText("CHECK! This move doesn't protect your king!");
+                        } else {
+                            gameStatusLabel.setText("This move leaves your king in check!");
+                        }
+                    } else {
+                        // Mutare complet invalidă
+                        if (isInCheck) {
+                            gameStatusLabel.setText("CHECK! You must protect your king!");
+                        } else {
+                            gameStatusLabel.setText("Invalid move target!");
+                        }
+                    }
+                }
             }
 
             selectedPosition = null;
@@ -278,12 +320,17 @@ public class GameFrame extends JFrame implements GameObserver {
         computerTimer.setRepeats(false);
         computerTimer.start();
     }
+
     private void makeComputerMove() {
         Player computer = game.getCurrentPlayer();
         if (!computer.getName().equals("Computer")) {
             return;
         }
         Board board = game.getBoard();
+
+        // STRATEGIE ÎMBUNĂTĂȚITĂ: prioritizează capturile și atacurile
+
+        // 1. Listă toate piesele computerului
         List<Position> computerPieces = new ArrayList<>();
         for (char x = 'A'; x <= 'H'; x++) {
             for (int y = 1; y <= 8; y++) {
@@ -294,38 +341,141 @@ public class GameFrame extends JFrame implements GameObserver {
                 }
             }
         }
+
         if (computerPieces.isEmpty()) {
             gameStatusLabel.setText("Computer has no pieces!");
             return;
         }
+
         Random rand = new Random();
         boolean moveMade = false;
-        int maxAttempts = 100;
-        for (int attempt = 0; attempt < maxAttempts && !moveMade; attempt++) {
+
+        // 2. Încearcă mai întâi să captureze piese valoroase
+        for (int attempt = 0; attempt < 50 && !moveMade; attempt++) {
             Position from = computerPieces.get(rand.nextInt(computerPieces.size()));
             Piece piece = board.getPieceAt(from);
             if (piece == null) continue;
+
             List<Position> validMoves = board.getValidMovesForPiece(from);
             if (validMoves.isEmpty()) continue;
-            Position to = validMoves.get(rand.nextInt(validMoves.size()));
-            Piece targetPiece = board.getPieceAt(to);
-            boolean isCapture = (targetPiece != null && targetPiece.getColor() != piece.getColor());
-            try {
-                computer.makeMove(from, to, board,gui);
-                game.addMove(computer, from, to);
-                addMoveToHistory(computer, from, to, isCapture, targetPiece);
-                moveMade = true;
-                gameStatusLabel.setText("Computer moved: " + from + "-" + to);
-                checkGameState();
-                game.switchPlayer();
-                updateDisplay();
 
-            } catch (InvalidMoveException e) {
+            // Sortează mutările: capturile primele
+            List<Position> captureMoves = new ArrayList<>();
+            List<Position> safeMoves = new ArrayList<>();
+            List<Position> dangerousMoves = new ArrayList<>();
+
+            for (Position to : validMoves) {
+                Piece target = board.getPieceAt(to);
+                if (target != null && target.getColor() != piece.getColor()) {
+                    // E o captură - evaluează valoarea
+                    int targetValue = getPieceValue(target.getType());
+                    if (targetValue >= 3) { // Capturează doar piese valoroase (>= bishop)
+                        captureMoves.add(to);
+                    }
+                } else if (isSafeSquare(board, to, computer.getColor())) {
+                    safeMoves.add(to);
+                } else {
+                    dangerousMoves.add(to);
+                }
+            }
+
+            // Alege în ordinea priorității
+            Position to = null;
+            if (!captureMoves.isEmpty()) {
+                to = captureMoves.get(rand.nextInt(captureMoves.size()));
+            } else if (!safeMoves.isEmpty()) {
+                to = safeMoves.get(rand.nextInt(safeMoves.size()));
+            } else if (!dangerousMoves.isEmpty()) {
+                to = dangerousMoves.get(rand.nextInt(dangerousMoves.size()));
+            }
+
+            if (to != null) {
+                try {
+                    Piece targetPiece = board.getPieceAt(to);
+                    boolean isCapture = (targetPiece != null && targetPiece.getColor() != piece.getColor());
+
+                    computer.makeMove(from, to, board, gui);
+                    game.addMove(computer, from, to);
+                    addMoveToHistory(computer, from, to, isCapture, targetPiece);
+                    moveMade = true;
+
+                    String moveDesc = from + "-" + to;
+                    if (isCapture) {
+                        moveDesc += " (captures " + getPieceName(targetPiece.getType()) + ")";
+                    }
+                    gameStatusLabel.setText("Computer moved: " + moveDesc);
+
+                    checkGameState();
+                    game.switchPlayer();
+                    updateDisplay();
+
+                } catch (InvalidMoveException e) {
+                    // Încearcă altă mutare
+                }
             }
         }
+
+        // 3. Dacă n-a găsit mutare inteligentă, folosește vechiul sistem
+        if (!moveMade) {
+            for (int attempt = 0; attempt < 100 && !moveMade; attempt++) {
+                Position from = computerPieces.get(rand.nextInt(computerPieces.size()));
+                Piece piece = board.getPieceAt(from);
+                if (piece == null) continue;
+
+                List<Position> validMoves = board.getValidMovesForPiece(from);
+                if (validMoves.isEmpty()) continue;
+
+                Position to = validMoves.get(rand.nextInt(validMoves.size()));
+                Piece targetPiece = board.getPieceAt(to);
+                boolean isCapture = (targetPiece != null && targetPiece.getColor() != piece.getColor());
+
+                try {
+                    computer.makeMove(from, to, board, gui);
+                    game.addMove(computer, from, to);
+                    addMoveToHistory(computer, from, to, isCapture, targetPiece);
+                    moveMade = true;
+                    gameStatusLabel.setText("Computer moved: " + from + "-" + to);
+                    checkGameState();
+                    game.switchPlayer();
+                    updateDisplay();
+
+                } catch (InvalidMoveException e) {
+                    // Încearcă altă mutare
+                }
+            }
+        }
+
         if (!moveMade) {
             gameStatusLabel.setText("Computer cannot move - stalemate?");
             checkGameState();
+        }
+    }
+
+    private boolean isSafeSquare(Board board, Position pos, Colors playerColor) {
+        // Verifică dacă pătratul e atacat de adversar
+        for (char x = 'A'; x <= 'H'; x++) {
+            for (int y = 1; y <= 8; y++) {
+                Position attackerPos = new Position(x, y);
+                Piece attacker = board.getPieceAt(attackerPos);
+                if (attacker != null && attacker.getColor() != playerColor) {
+                    List<Position> attackerMoves = attacker.getPossibleMoves(board);
+                    if (attackerMoves.contains(pos)) {
+                        return false; // Pătratul e atacat
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private int getPieceValue(char type) {
+        switch (type) {
+            case 'Q': return 9;
+            case 'R': return 5;
+            case 'B': return 3;
+            case 'N': return 3;
+            case 'P': return 1;
+            default: return 0;
         }
     }
 
@@ -334,24 +484,18 @@ public class GameFrame extends JFrame implements GameObserver {
             Player winner = game.getCurrentPlayer();
             boolean humanWins = !winner.getName().equals("Computer");
             if (humanWins) {
-                JOptionPane.showMessageDialog(this,
-                        "Checkmate! You win!",
-                        "Victory", JOptionPane.INFORMATION_MESSAGE);
+                gameStatusLabel.setText("CHECKMATE! You win!");
                 app.endGame(game, true);
                 gui.showGameOverScreen(game, "Victory by Checkmate!", 300);
             } else {
-                JOptionPane.showMessageDialog(this,
-                        "Checkmate! Computer wins!",
-                        "Defeat", JOptionPane.WARNING_MESSAGE);
+                gameStatusLabel.setText("CHECKMATE! Computer wins!");
                 app.endGame(game, false);
                 gui.showGameOverScreen(game, "Defeat by Checkmate!", -300);
             }
             return;
         }
         if (game.checkForStalemate()) {
-            JOptionPane.showMessageDialog(this,
-                    "Stalemate! Draw game.",
-                    "Draw", JOptionPane.INFORMATION_MESSAGE);
+            gameStatusLabel.setText("STALEMATE! Draw game.");
             Player human = game.getHumanPlayer();
             int points = human.getPoints();
             app.endGame(game, false);
@@ -392,11 +536,19 @@ public class GameFrame extends JFrame implements GameObserver {
     private void highlightSquares() {
         Board board = game.getBoard();
         Piece selectedPiece = (selectedPosition != null) ? board.getPieceAt(selectedPosition) : null;
+
+        // Verifică dacă suntem în șah
+        boolean inCheck = false;
+        if (game.getCurrentPlayer() != null) {
+            inCheck = board.isInCheck(game.getCurrentPlayer().getColor());
+        }
+
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 char x = (char) ('A' + col);
                 int y = 8 - row;
                 Position pos = new Position(x, y);
+
                 if (selectedPosition != null && pos.equals(selectedPosition)) {
                     squares[row][col].setBackground(SELECTED_COLOR);
                 } else if (highlightedMoves != null && highlightedMoves.contains(pos)) {
@@ -411,7 +563,13 @@ public class GameFrame extends JFrame implements GameObserver {
                         squares[row][col].setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
                     }
                 } else {
-                    if ((row + col) % 2 == 0) {
+                    // Dacă suntem în șah, evidențiem regele
+                    Piece piece = board.getPieceAt(pos);
+                    if (inCheck && piece != null && piece.getType() == 'K' &&
+                            piece.getColor() == game.getCurrentPlayer().getColor()) {
+                        squares[row][col].setBackground(CHECK_WARNING_COLOR);
+                        squares[row][col].setBorder(BorderFactory.createLineBorder(Color.RED, 3));
+                    } else if ((row + col) % 2 == 0) {
                         squares[row][col].setBackground(LIGHT_SQUARE);
                     } else {
                         squares[row][col].setBackground(DARK_SQUARE);
@@ -448,7 +606,7 @@ public class GameFrame extends JFrame implements GameObserver {
                 } else {
                     squares[row][col].setText(getPieceSymbol(piece));
                     squares[row][col].setToolTipText(getPieceName(piece.getType()) +
-                            " (" + piece.getColor() + ")");
+                            " (" + piece.getColor() + ") - Value: " + getPieceValue(piece.getType()) + " points");
                 }
             }
         }
@@ -456,11 +614,18 @@ public class GameFrame extends JFrame implements GameObserver {
         currentPlayerLabel.setText("Turn: " + currentPlayer.getName());
         updateCapturedPieces();
         scoreLabel.setText(game.getPlayer1().getPoints() + " - " + game.getPlayer2().getPoints());
-        Board board = game.getBoard();
-        if (board.isInCheck(currentPlayer.getColor())) {
-            gameStatusLabel.setText("CHECK! " + currentPlayer.getName() + "'s king is under attack!");
-        } else {
-            gameStatusLabel.setText(currentPlayer.getName() + "'s turn");
+
+        // Actualizează status doar dacă nu e deja setat special
+        if (!gameStatusLabel.getText().contains("CHECK") &&
+                !gameStatusLabel.getText().contains("CHECKMATE") &&
+                !gameStatusLabel.getText().contains("STALEMATE")) {
+
+            Board board = game.getBoard();
+            if (board.isInCheck(currentPlayer.getColor())) {
+                gameStatusLabel.setText("CHECK! " + currentPlayer.getName() + "'s king is under attack!");
+            } else {
+                gameStatusLabel.setText(currentPlayer.getName() + "'s turn");
+            }
         }
     }
 

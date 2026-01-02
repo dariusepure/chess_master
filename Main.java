@@ -375,29 +375,7 @@ public class Main {
         }
     }
 
-    public List<Game> getUserGames() {
-        if (currentUser == null) return new ArrayList<>();
 
-        List<Game> userGames = new ArrayList<>();
-        for (Game game : allGames.values()) {
-            if (game != null && game.isValidGame() &&
-                    currentUser.getGameIds().contains(game.getId())) {
-                userGames.add(game);
-            }
-        }
-        return userGames;
-    }
-
-    public void continueGame(Game game) {
-        if (game == null || currentUser == null) {
-            showMessage("Invalid game", "Error");
-            return;
-        }
-
-        if (gui != null) {
-            gui.showGameScreen(game);
-        }
-    }
 
     public void launchGUI() {
         this.gui = new ChessGUI(this);

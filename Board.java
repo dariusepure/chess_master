@@ -89,7 +89,7 @@ public class Board {
         ChessPair<Position, Piece> pawnPair = findPairByPositionAndPiece(to, pawn);
         if (pawnPair == null) return;
 
-        char choice = gui.showPromotionDialog(); // Q R B N
+        char choice = gui.showPromotionDialog();
 
         pieces.remove(pawnPair);
 
@@ -179,22 +179,6 @@ public class Board {
 
     public List<ChessPair<Position, Piece>> getAllPieces() {
         return new ArrayList<>(pieces);
-    }
-
-    public List<ChessPair<Position, Piece>> getPiecesByColor(Colors color) {
-        List<ChessPair<Position, Piece>> result = new ArrayList<>();
-        for (ChessPair<Position, Piece> pair : pieces) {
-            if (pair.getValue().getColor() == color) result.add(pair);
-        }
-        return result;
-    }
-
-    public int countPiecesByColor(Colors color) {
-        int count = 0;
-        for (ChessPair<Position, Piece> pair : pieces) {
-            if (pair.getValue().getColor() == color) count++;
-        }
-        return count;
     }
 
     public boolean isCheckmate(Colors playerColor) {

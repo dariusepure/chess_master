@@ -36,8 +36,6 @@ public class Game {
         this.currentPlayerColor = Colors.WHITE.toString();
     }
 
-    // ========== METODE GETTER PENTRU PLAYERS ==========
-
     public Player getPlayer1() {
         if (player1 != null) {
             player1.ensureCapturedPiecesInitialized();
@@ -52,8 +50,6 @@ public class Game {
         return player2;
     }
 
-    // ========== METODA CRITICĂ PENTRU CAPTURED PIECES ==========
-
     public void ensureCapturedPiecesInitialized() {
         if (player1 != null) {
             player1.ensureCapturedPiecesInitialized();
@@ -62,8 +58,6 @@ public class Game {
             player2.ensureCapturedPiecesInitialized();
         }
     }
-
-    // ========== RESTUL METODELOR ORIGINALE ==========
 
     public void setId(long id) {
         this.id = (int) id;

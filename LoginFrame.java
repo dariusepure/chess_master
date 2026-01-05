@@ -41,10 +41,10 @@ public class LoginFrame extends JFrame {
         loginButton.setOpaque(true);
         loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                loginButton.setBackground(new Color(56, 142, 60)); // Verde mai închis
+                loginButton.setBackground(new Color(56, 142, 60));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                loginButton.setBackground(new Color(76, 175, 80)); // Verde original
+                loginButton.setBackground(new Color(76, 175, 80));
             }
         });
         loginButton.addActionListener(new ActionListener() {
@@ -62,10 +62,10 @@ public class LoginFrame extends JFrame {
         registerButton.setOpaque(true);
         registerButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                registerButton.setBackground(new Color(56, 142, 60)); // Verde mai închis
+                registerButton.setBackground(new Color(56, 142, 60));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                registerButton.setBackground(new Color(76, 175, 80)); // Verde original
+                registerButton.setBackground(new Color(76, 175, 80));
             }
         });
 

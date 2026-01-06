@@ -32,7 +32,18 @@ public class LoginFrame extends JFrame {
         formPanel.add(new JLabel("Password:"));
         passwordField = new JPasswordField();
         formPanel.add(passwordField);
-        JButton loginButton = new JButton("Login");
+
+        JButton loginButton = createLoginButton();
+        JButton registerButton = createRegisterButton();
+
+        formPanel.add(loginButton);
+        formPanel.add(registerButton);
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+        add(mainPanel);
+    }
+
+    private JButton createLoginButton() {
+        final JButton loginButton = new JButton("Login");
         loginButton.setBackground(new Color(76, 175, 80));
         loginButton.setForeground(Color.WHITE);
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
@@ -53,7 +64,11 @@ public class LoginFrame extends JFrame {
                 login();
             }
         });
-        JButton registerButton = new JButton("Create Account");
+        return loginButton;
+    }
+
+    private JButton createRegisterButton() {
+        final JButton registerButton = new JButton("Create Account");
         registerButton.setBackground(new Color(76, 175, 80));
         registerButton.setForeground(Color.WHITE);
         registerButton.setFont(new Font("Arial", Font.BOLD, 14));
@@ -68,17 +83,13 @@ public class LoginFrame extends JFrame {
                 registerButton.setBackground(new Color(76, 175, 80));
             }
         });
-
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 register();
             }
         });
-        formPanel.add(loginButton);
-        formPanel.add(registerButton);
-        mainPanel.add(formPanel, BorderLayout.CENTER);
-        add(mainPanel);
+        return registerButton;
     }
 
     private void login() {

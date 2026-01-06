@@ -99,6 +99,10 @@ public class Board {
     private void promotePawnWithDialog(Position to, Pawn pawn, ChessGUI gui) {
         ChessPair<Position, Piece> pawnPair = findPairByPositionAndPiece(to, pawn);
         if (pawnPair == null) return;
+        final Position finalTo = to;
+        final Pawn finalPawn = pawn;
+        final ChessPair<Position, Piece> finalPawnPair = pawnPair;
+
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -121,15 +125,13 @@ public class Board {
                     case 3: pieceChar = 'N'; break;
                     default: pieceChar = 'Q'; break;
                 }
-                pieces.remove(pawnPair);
+                pieces.remove(finalPawnPair);
                 Piece promotedPiece = PieceFactory.createPiece(
                         pieceChar,
-                        pawn.getColor(),
-                        to
+                        finalPawn.getColor(),
+                        finalTo
                 );
-                pieces.add(new ChessPair<>(to, promotedPiece));
-
-
+                pieces.add(new ChessPair<>(finalTo, promotedPiece));
             }
         });
     }

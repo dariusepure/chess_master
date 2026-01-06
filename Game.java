@@ -9,11 +9,11 @@ public class Game {
     private List<Move> history;
     private int currentPlayerIndex;
     private String currentPlayerColor;
-    private List<GameObserver> observers = new ArrayList<>();
+    private List<GameObserver> observers = new ArrayList<GameObserver>();
 
     public Game() {
         this.board = new Board();
-        this.history = new ArrayList<>();
+        this.history = new ArrayList<Move>();
         this.currentPlayerIndex = 0;
         this.currentPlayerColor = Colors.WHITE.toString();
     }
@@ -31,7 +31,7 @@ public class Game {
         }
 
         this.board = new Board();
-        this.history = new ArrayList<>();
+        this.history = new ArrayList<Move>();
         this.currentPlayerIndex = 0;
         this.currentPlayerColor = Colors.WHITE.toString();
     }
@@ -62,6 +62,7 @@ public class Game {
     public void setId(long id) {
         this.id = (int) id;
     }
+
 
     public void setPlayers(List<Player> players) {
         if (players != null && players.size() >= 2) {
@@ -115,7 +116,11 @@ public class Game {
     }
 
     public void setMoves(List<Move> moves) {
-        this.history = moves != null ? new ArrayList<>(moves) : new ArrayList<>();
+        if (moves == null) {
+            this.history = new ArrayList<Move>();
+        } else {
+            this.history = new ArrayList<Move>(moves);
+        }
     }
 
     public void start() {
@@ -136,11 +141,6 @@ public class Game {
         }
         ensureCapturedPiecesInitialized();
         notifyObservers("Game started");
-    }
-
-    public void resume() {
-        ensureCapturedPiecesInitialized();
-        notifyObservers("Game resumed");
     }
 
     public void switchPlayer() {
@@ -195,16 +195,19 @@ public class Game {
             return;
         }
 
-        for (ChessPair<Position, Piece> pair : board.getAllPieces()) {
-            Piece piece = pair.getValue();
-            if (piece instanceof Pawn) {
-                Pawn pawn = (Pawn) piece;
-                Position pos = pair.getKey();
-                Colors color = pawn.getColor();
+        List<ChessPair<Position, Piece>> rawPieces = board.getAllPieces();
+        if (rawPieces != null) {
+            for (ChessPair<Position, Piece> pair : rawPieces) {
+                Piece piece = pair.getValue();
+                if (piece instanceof Pawn) {
+                    Pawn pawn = (Pawn) piece;
+                    Position pos = pair.getKey();
+                    Colors color = pawn.getColor();
 
-                if ((color == Colors.WHITE && pos.getY() != 2) ||
-                        (color == Colors.BLACK && pos.getY() != 7)) {
-                    pawn.setFirstMove(false);
+                    if ((color == Colors.WHITE && pos.getY() != 2) ||
+                            (color == Colors.BLACK && pos.getY() != 7)) {
+                        pawn.setFirstMove(false);
+                    }
                 }
             }
         }
@@ -215,6 +218,7 @@ public class Game {
             observers.add(observer);
         }
     }
+
 
     private void notifyMoveMade(Move move) {
         for (GameObserver observer : observers) {
@@ -259,32 +263,14 @@ public class Game {
     }
 
     public List<Move> getHistory() {
-        return new ArrayList<>(history);
+        return new ArrayList<Move>(history);
     }
 
     public String getCurrentPlayerColor() {
         return currentPlayerColor;
     }
 
-    public void setPlayer1(Player player) {
-        this.player1 = player;
-        if (player != null && player.getColor() == null) {
-            player.setColor(Colors.WHITE);
-        }
-        ensureCapturedPiecesInitialized();
-    }
 
-    public void setPlayer2(Player player) {
-        this.player2 = player;
-        if (player != null && player.getColor() == null) {
-            player.setColor(Colors.BLACK);
-        }
-        ensureCapturedPiecesInitialized();
-    }
-
-    public int getCurrentPlayerIndex() {
-        return currentPlayerIndex;
-    }
 
     public boolean isComputerTurn() {
         Player current = getCurrentPlayer();
@@ -299,10 +285,5 @@ public class Game {
             return player2;
         }
         return null;
-    }
-
-    public boolean isValidGame() {
-        ensureCapturedPiecesInitialized();
-        return player1 != null && player2 != null && board != null;
     }
 }

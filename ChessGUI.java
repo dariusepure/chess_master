@@ -67,29 +67,6 @@ public class ChessGUI {
         System.exit(0);
     }
 
-    public char showPromotionDialog() {
-        String[] options = {"Queen", "Rook", "Bishop", "Knight"};
-
-        int choice = JOptionPane.showOptionDialog(
-                currentFrame,
-                "Choose a piece for promotion:",
-                "Pawn Promotion",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                options,
-                options[0]
-        );
-
-        return switch (choice) {
-            case 0 -> 'Q';
-            case 1 -> 'R';
-            case 2 -> 'B';
-            case 3 -> 'N';
-            default -> 'Q';
-        };
-    }
-
     private void disposeCurrentFrame() {
         if (currentFrame != null) {
             currentFrame.dispose();

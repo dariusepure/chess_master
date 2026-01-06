@@ -214,7 +214,7 @@ public class GameFrame extends JFrame implements GameObserver {
     }
 
     private JButton createStyledButton(String text, boolean largeFont) {
-        JButton button = new JButton(text);
+        final JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, largeFont ? 16 : 14));
         button.setBackground(new Color(76, 175, 80));
         button.setForeground(Color.WHITE);

@@ -11,33 +11,40 @@ public class User {
     public User() {
         this.email = "";
         this.password = "";
-        this.games = new ArrayList<>();
+        this.games = new ArrayList<Game>();
         this.points = 0;
-        this.gameIds = new ArrayList<>();
+        this.gameIds = new ArrayList<Integer>();
     }
 
     public User(String email, String password) {
         this.email = email;
         this.password = password;
-        this.games = new ArrayList<>();
+        this.games = new ArrayList<Game>();
         this.points = 0;
-        this.gameIds = new ArrayList<>();
+        this.gameIds = new ArrayList<Integer>();
     }
 
     public User(String email, String password, int points, List<Integer> gameIds) {
         this.email = email;
         this.password = password;
         this.points = points;
-        this.games = new ArrayList<>();
-        this.gameIds = gameIds != null ? new ArrayList<>(gameIds) : new ArrayList<>();
+        this.games = new ArrayList<Game>();
+        if (gameIds != null) {
+            this.gameIds = new ArrayList<Integer>();
+            for (Integer id : gameIds) {
+                if (id != null) {
+                    this.gameIds.add(id);
+                }
+            }
+        } else {
+            this.gameIds = new ArrayList<Integer>();
+        }
     }
 
     public void addGame(Game game) {
-        if (game == null)
-            return;
+        if (game == null) return;
         for (Game g : games) {
-            if (g.getId() == game.getId())
-                return;
+            if (g.getId() == game.getId()) return;
         }
         games.add(game);
         if (!gameIds.contains(game.getId())) {
@@ -46,8 +53,7 @@ public class User {
     }
 
     public void removeGame(Game game) {
-        if (game == null)
-            return;
+        if (game == null) return;
         Game toRemove = null;
         for (Game g : games) {
             if (g.getId() == game.getId()) {
@@ -62,11 +68,15 @@ public class User {
     }
 
     public List<Game> getActiveGames() {
-        return new ArrayList<>(games);
+        return new ArrayList<Game>(games);
     }
 
     public void setGames(List<Game> games) {
-        this.games = games != null ? new ArrayList<>(games) : new ArrayList<>();
+        if (games != null) {
+            this.games = new ArrayList<Game>(games);
+        } else {
+            this.games = new ArrayList<Game>();
+        }
         this.gameIds.clear();
         for (Game game : this.games) {
             this.gameIds.add(game.getId());
@@ -106,11 +116,20 @@ public class User {
     }
 
     public List<Integer> getGameIds() {
-        return new ArrayList<>(gameIds);
+        return new ArrayList<Integer>(gameIds);
     }
 
     public void setGameIds(List<Integer> gameIds) {
-        this.gameIds = gameIds != null ? new ArrayList<>(gameIds) : new ArrayList<>();
+        if (gameIds != null) {
+            this.gameIds = new ArrayList<Integer>();
+            for (Integer id : gameIds) {
+                if (id != null) {
+                    this.gameIds.add(id);
+                }
+            }
+        } else {
+            this.gameIds = new ArrayList<Integer>();
+        }
     }
 
     @Override

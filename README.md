@@ -1,25 +1,17 @@
-# ChessMaster
+# Chess Master
 
-A complete, interactive desktop Chess game built in Java 1.7. This project features a custom graphical user interface (GUI) and a multi-account management system, structured using clean Object-Oriented Programming (OOP) principles.
+A complete, desktop Chess game built in Java 1.7 using **Java Swing** for the GUI. It features standard chess gameplay and a multi-account management system.
 
-## Features
+##  Features & Architecture
 
-- **Complete Chess Game:** Implements all standard chess moves, rules, and win/draw conditions.
-- **Graphical User Interface (GUI):** A clean visual board for smooth local gameplay and user interaction.
-- **Multi-Account System:** Allows users to create and manage multiple personal profiles.
-- **Custom Exception Handling:** Robust error management for invalid moves or account operations.
-- **Java 1.7 Compatibility:** Developed using stable Java 1.7 features, focusing on classic software engineering practices.
+The source code (`src`) is cleanly organized into 4 main packages:
 
-## Project Architecture & Design Patterns
+- **`pieces`:** Implements chess pieces using OOP principles (Inheritance and Polymorphism). Each piece overrides its own movement logic.
+- **`gui`:** Handles the visual layer using Java Swing, rendering the chess board and account screens.
+- **`logic`:** Coordinated the core game rules, turn management, and user account validation.
+- **`exception`:** Manages custom exceptions for safe error handling (e.g., illegal moves).
 
-The source code (`src`) is modularly organized into 4 main packages, reflecting a **Model-View-Controller (MVC)** architectural style:
-
-- **`pieces` (Model):** Implements game components using **Inheritance** and **Polymorphism**. Each piece inherits from a base class and overrides its specific movement logic.
-- **`gui` (View):** Handles the visual presentation layer, rendering the chess board, pieces, and account management screens.
-- **`logic` (Controller):** Contains the core business logic, coordinating the game flow, turn management, and validating user accounts.
-- **`exception`:** Houses custom application exceptions, ensuring the system fails gracefully during illegal moves or registration conflicts.
-
-## How to Run
+##  How to Run
 
 1. Open this project in your preferred IDE (like IntelliJ IDEA).
 2. Ensure your project structure points to Java 1.7 (or a compatible SDK).
